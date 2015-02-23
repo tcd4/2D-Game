@@ -7,7 +7,7 @@ static Level __level;
 extern SDL_Surface *screen;
 
 
-void LoadLevel( char *filename )
+void LoadLevel( char *levelname )
 {
 	FILE *levelfile = NULL;
 	char buf[ 128 ];
@@ -15,10 +15,10 @@ void LoadLevel( char *filename )
 	int w, h;
 	Sprite *temp;
 
-	levelfile = fopen( filename, "r" );
-	if ( levelfile == NULL )
+	levelfile = fopen( "def/levels.txt", "r" );
+	if( levelfile == NULL )
 	{
-		fprintf( stderr, "LoadLevel: ERROR, could not open file: %s\n", filename );
+		fprintf( stderr, "LoadLevel: ERROR, could not open file: def/levels.txt\n" );
 		return;
 	}
 

@@ -16,4 +16,9 @@
  */
 void InitPlayer();
 
+/**
+ * @brief loads the specfied player from character.txt
+ */
+void LoadPlayer();
+
 #endif
