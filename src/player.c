@@ -1,4 +1,5 @@
 #include "player.h"
+#include "projectile.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -6,11 +7,17 @@
 extern Uint32 NOW;
 
 
+void PlayerThink( Entity *self );
+void PlayerTouch( Entity *self, Entity *other );
+void PlayerDie( Entity *self );
+
+
 void LoadPlayer( Entity *self, char *filename )
 {
 	FILE *charfile = NULL;
 	char buf[ 128 ];
 	char charimagepath[ 128 ];
+	char projdefpath[ 128 ];
 	int w, h;
 	int col;
 	int delay;
@@ -49,6 +56,10 @@ void LoadPlayer( Entity *self, char *filename )
 		{
 			fscanf( charfile, "%i", &delay );
 		}
+		else if( strncmp( buf, "proj:", 128 ) == 0 )
+		{
+			fscanf( charfile, "%s", projdefpath );
+		}
 	}
 
 	fclose( charfile );
@@ -57,9 +68,10 @@ void LoadPlayer( Entity *self, char *filename )
 	if( !temp )
 	{
 		fprintf( stderr, "LoadPlayer: FATAL: could not open sprite file: %s\n", charimagepath );
-		FreeSprite( temp );
 		exit( -1 );
 	}
+
+	LoadProjectile( self, projdefpath );
 
 	self->sprite = temp;
 	self->width = w;
@@ -92,13 +104,27 @@ void InitPlayer()
 	self->position[ 1 ] = 480 - self->height;
 
 	self->deadflag = 0;
-	/*
+	
 	self->thinkrate = 50;
 	self->nextthink = NOW + self->thinkrate;
 	
 	self->Think = PlayerThink;
 	self->Touch = PlayerTouch;
-	self->Die = PlayerDie;
+	self->Die = PlayerDie;/*
 	self->World_Touch = PlayerWorldTouch;
 	*/
+}
+
+
+void PlayerThink( Entity *self )
+{
+}
+
+
+void PlayerTouch( Entity *self, Entity *other )
+{
+}
+
+void PlayerDie( Entity *self )
+{
 }

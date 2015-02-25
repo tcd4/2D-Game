@@ -18,7 +18,7 @@ void LoadLevel( char *filename )
 	levelfile = fopen( filename, "r" );
 	if( levelfile == NULL )
 	{
-		fprintf( stderr, "LoadLevel: FATAL: could not open file: def/levels.txt\n" );
+		fprintf( stderr, "LoadLevel: FATAL: could not open file: %s\n", filename );
 		exit( -1 );
 	}
 
@@ -28,7 +28,7 @@ void LoadLevel( char *filename )
 		{
 			fgets( buf, sizeof( buf ), levelfile );
 		}
-		else if( strncmp( buf, "image:", 128 ) == 0 )
+		else if( strncmp( buf, "sprite:", 128 ) == 0 )
 		{
 			fscanf( levelfile, "%s", bgimagepath );
 		}
@@ -48,7 +48,6 @@ void LoadLevel( char *filename )
 	if( !temp )
 	{
 		fprintf( stderr, "LoadLevel: FATAL: could not open sprite file: %s\n", bgimagepath );
-		FreeSprite( temp );
 		exit( -1 );
 	}
 

@@ -18,7 +18,11 @@ void InitPlayer();
 
 /**
  * @brief loads the specfied player from character.txt
+ *
+ * @param self a pointer to the player entity
+ * @param filename the file name and path to the player defintion file
  */
-void LoadPlayer();
+void LoadPlayer( Entity *self, char *filename);
+
 
 #endif
