@@ -16,7 +16,7 @@
 #define MAX_SOUND_CLIPS 128
 
 
-enum s_groups { FX_NULL, FX_Player, FX_Boss, FX_Impacts };
+enum s_groups { FX_NULL, FX_Player, FX_Boss, FX_Fire };
 
 
 typedef struct sound_s

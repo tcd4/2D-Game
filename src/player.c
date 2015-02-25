@@ -3,90 +3,102 @@
 #include <stdio.h>
 
 
-void LoadPlayer( Entity *self, char *charname )
+extern Uint32 NOW;
+
+
+void LoadPlayer( Entity *self, char *filename )
 {
 	FILE *charfile = NULL;
-	char buf[ 1024 ];
-	char spriteimagepath[ 128 ]; 
-	char name[1024];
+	char buf[ 128 ];
+	char charimagepath[ 128 ];
+	int w, h;
+	int col;
+	int delay;
 	Sprite *temp;
 	
-	charfile = fopen( "def/characters.txt", "r" );
+	charfile = fopen( filename, "r" );
 	if( charfile == NULL )
 	{
-		fprintf( stderr, "LoadPlayer: ERROR, could not open file: def/characters.txt\n" );
-		return;
+		fprintf( stderr, "LoadPlayer: FATAL: could not open file: %s\n", filename );
+		exit( -1 );
 	}
 
 	while( fscanf( charfile, "%s", buf ) != EOF )
 	{
-		if( buf[ 0 ] == '#' )
+		if( buf[0] == '#' )
 		{
 			fgets( buf, sizeof( buf ), charfile );
 		}
-		else if( strncmp( buf, "character:", 1024 ) == 0 )
+		else if( strncmp( buf, "sprite:", 128 ) == 0 )
 		{
-			fscanf( charfile, "%s", name );
-
-			if( strcmp( name, charname ) == 0 )
-			{
-				while( fscanf( charfile, "%s", buf ) != EOF )
-				{
-					if( buf[ 0 ] == '#' )
-					{
-						fgets( buf, sizeof( buf ), charfile );
-					}
-					else if( strncmp( buf, "character:", 1024 ) == 0 )
-					{
-						break;
-					}
-					else if( strncmp( buf, "image:", 1024 ) == 0 )
-					{
-						fscanf( charfile, "%s", spriteimagepath );
-					}
-					else if( strncmp( buf, "width:", 1024 ) == 0 )
-					{
-						fscanf( charfile, "%i", &self->width );
-					}
-					else if( strncmp( buf, "height:", 1024 ) == 0 )
-					{
-						fscanf( charfile, "%i", &self->height );
-					}
-					else if( strncmp( buf, "numFrames:", 1024 ) == 0 )
-					{
-						fscanf( charfile, "%i", &self->numFrames );
-					}
-				}
-
-				break;
-			}
+			fscanf( charfile, "%s", charimagepath );
+		}
+		else if( strncmp( buf, "height:", 128 ) == 0 )
+		{
+			fscanf( charfile, "%i", &h );
+		}
+		else if( strncmp( buf, "width:", 128 ) == 0 )
+		{
+			fscanf( charfile, "%i", &w );
+		}
+		else if( strncmp( buf, "columns:", 128 ) == 0 )
+		{
+			fscanf( charfile, "%i", &col );
+		}
+		else if( strncmp( buf, "delay:", 128 ) == 0 )
+		{
+			fscanf( charfile, "%i", &delay );
 		}
 	}
 
 	fclose( charfile );
 
-	temp = LoadSprite( spriteimagepath, self->width, self->height );
+	temp = LoadSprite( charimagepath, w, h );
 	if( !temp )
 	{
-		fprintf( stderr, "LoadPlayer: ERROR, could not open sprite file: %s\n", spriteimagepath );
+		fprintf( stderr, "LoadPlayer: FATAL: could not open sprite file: %s\n", charimagepath );
 		FreeSprite( temp );
-		return;
+		exit( -1 );
 	}
 
 	self->sprite = temp;
+	self->width = w;
+	self->height = h;
+	self->numFrames = col;
+	self->frameDelay = delay;
 }
 
 
 void InitPlayer()
 {
-	Entity *self = newEnt();
+	Entity *self = NULL;
+
+	self = NewEnt();
+	if( self == NULL )
+	{
+		fprintf( stderr, "InitPlayer: ERROR, could not make a player entity:\n" );
+		exit( -1 );
+	}
 
 	self->classname = "player";
+	self->self = self;
 
-	LoadPlayer( self, "Marisa" );
+	LoadPlayer( self, "def/Marisa.txt" );
 	self->frame = 0;
+	self->drawNextFrame = NOW + self->frameDelay;
 	self->visible = 1;
 
 	self->position[ 0 ] = 220 - ( self->width / 2 );
 	self->position[ 1 ] = 480 - self->height;
+
+	self->deadflag = 0;
+	/*
+	self->thinkrate = 50;
+	self->nextthink = NOW + self->thinkrate;
+	
+	self->Think = PlayerThink;
+	self->Touch = PlayerTouch;
+	self->Die = PlayerDie;
+	self->World_Touch = PlayerWorldTouch;
+	*/
 }

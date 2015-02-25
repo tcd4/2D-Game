@@ -13,7 +13,7 @@ extern SDL_Rect Camera;
 
 
 void Init_All();
-
+void Draw();
 
 /*this program must be run from the directory directly below images and src, not from within src*/
 /*notice the default arguments for main.  SDL expects main to look like that, so don't change it*/
@@ -25,16 +25,14 @@ int main( int argc, char *argv[] )
 
 	Init_All();
 
-	LoadLevel( "def/level.txt" );
+	LoadLevel( "def/Flame_Empress_Level.txt" );
 
 	done = 0;
 	do
 	{
 		ResetBuffer ();
 
-		DrawLevel();
-		DrawEntList();
-		DrawMouse();
+		Draw();
 
 		ThinkEntities();
 
@@ -51,6 +49,14 @@ int main( int argc, char *argv[] )
 	return 0;
 }
 
+
+void Draw()
+{
+		DrawLevel();
+		DrawEntList();
+}
+
+
 void CleanUpAll()
 {
 	CloseLevel();
@@ -60,10 +66,10 @@ void CleanUpAll()
 	/*any other cleanup functions can be added here*/ 
 }
 
+
 void Init_All()
 {
 	Init_Graphics();
-	InitMouse();
 	InitLevelSystem();
 	InitAudio();
 	InitEntList();

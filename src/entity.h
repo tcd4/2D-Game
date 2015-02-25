@@ -24,23 +24,28 @@ typedef struct entity_s
 
 	char			*classname;		/**< name of the entity type */
 
+	struct entity_s *self;			/**< pointer to itself */
 	struct entity_s	*owner;			/**< pointer to the entity that owns this one */
 	struct entity_s *opponent;		/**< pointer to the opponent entity */
 
 	Sprite			*sprite;		/**< pointer to the entity's sprite */
 	int				frame;			/**< frame the entity's sprite is on */
 	int				numFrames;		/**< number of frames in a row of a sprite sheet */
+	int				frameDelay;		/**< how long to wait until we draw the next frame */
+	int				drawNextFrame;	/**< the time to move to the next frame */
 	int				width, height;	/**< width and height of the sprite */
+
+	Sprite			*projectile;	/**< pointer to the entity's projectile sprite */
 
 	SDL_Rect		bbox;			/**< bounding box for the entity */
 
 	vec2_t			position;		/**< position of the entity */
-	vec2_t			velocity;		/**< velocity of the entity */
+	vec2_t			movedir;		/**< move direction of the entity */
+	int				velocity;		/**< velocity of the entity */
 
 	int				visible;		/**< determines if the entity can be seen or not */
 	int				deadflag;		/**< determines if the entity has died */
 
-	
 	Uint32			thinkrate;		/**< determines how often the entity thinks */
 	Uint32			nextthink;		/**< determines when the entity will think next */
 
@@ -61,7 +66,7 @@ void	InitEntList();
  *
  * @return a pointer to the new entity or NULL if the entList is full
  */
-Entity	*newEnt();
+Entity	*NewEnt();
 
 /**
  * @brief draws all the used entities to the screen buffer

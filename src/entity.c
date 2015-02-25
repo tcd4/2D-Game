@@ -7,28 +7,24 @@ extern SDL_Rect		Camera;
 extern Uint32		NOW;
 
 
-Entity		* entList = NULL;
+static Entity		* __entList = NULL;
 int			numEnts;
 
 
 void InitEntList()
 {
-	int i;
-	
 	numEnts = 0;
 
-	entList = (Entity *)malloc( sizeof( Entity ) * MAX_ENTITIES );
+	__entList = (Entity *)malloc( sizeof( Entity ) * MAX_ENTITIES );
 
-    if (entList == NULL)
+    if ( __entList == NULL )
     {
-        fprintf(stderr,"initEntityList: FATAL: cannot allocate entity list\n");
-        exit(-1);
+        fprintf( stderr, "Init__entList: FATAL: cannot allocate entity list\n" );
+        exit( -1 );
         return;
     }
 
-	memset( entList, 0, sizeof( Entity ) * MAX_ENTITIES );
-
-	//fprintf( stderr, "entList initialized\n" );
+	memset( __entList, 0, sizeof( Entity ) * MAX_ENTITIES );
 }
 
 
@@ -38,9 +34,9 @@ void FreeEntList()
 
 	for(i = 0; i < MAX_ENTITIES; i++ )
 	{
-		if( entList[ i ].inuse )
+		if( __entList[ i ].inuse )
 		{
-			FreeEnt( &entList[ i ] );
+			FreeEnt( &__entList[ i ] );
 		}
 	}
 }
@@ -52,9 +48,9 @@ void FreeEntsExcept( Entity *ent )
 
 	for( i = 0; i < MAX_ENTITIES; i++ )
 	{
-		if( ( entList[ i ].inuse ) && ( ent != &entList[ i ] ) )
+		if( ( __entList[ i ].inuse ) && ( ent != &__entList[ i ] ) )
 		{
-			FreeEnt( &entList[ i ] );
+			FreeEnt( &__entList[ i ] );
 		}
 	}
 }
@@ -70,10 +66,10 @@ void FreeEnt( Entity *ent )
 }
 
 
-Entity *newEnt()
+Entity *NewEnt()
 {
 	int i;
-	//fprintf( stderr, "call to newEnt\n" );
+
 	if( numEnts + 1 >= MAX_ENTITIES )
 	{
 		return NULL;
@@ -81,15 +77,17 @@ Entity *newEnt()
 
 	for( i = 0; i < MAX_ENTITIES; i++ )
 	{
-		if( !entList[ i ].inuse )
+		if( !__entList[ i ].inuse )
 		{
-			entList[ i ].inuse = 1;
+			__entList[ i ].inuse = 1;
 			numEnts++;
-			//fprintf( stderr, "new ent created at index %i\n", i );
-			return &entList[ i ];
+
+			fprintf( stderr, "new ent created at index %i\n", i );
+			return &__entList[ i ];
 		}
 	}
 
+	fprintf( stderr, "new ent created at index %i\n" );
 	return NULL;
 }
 
@@ -100,12 +98,12 @@ void ThinkEntities()
 
 	for( i = 0; i < MAX_ENTITIES; i++ )
 	{
-		if( ( entList[ i ].inuse ) && ( entList[ i ].Think != NULL ) )
+		if( ( __entList[ i ].inuse ) && ( __entList[ i ].Think != NULL ) )
 		{
-			if( entList[ i ].nextthink <= NOW )
+			if( __entList[ i ].nextthink <= NOW )
 			{
-				entList[ i ].Think( &entList[ i ] );
-				entList[ i ].nextthink = NOW + entList[ i ].thinkrate;
+				__entList[ i ].Think( &__entList[ i ] );
+				__entList[ i ].nextthink = NOW + __entList[ i ].thinkrate;
 			}
 		}
 	}
@@ -118,13 +116,14 @@ void DrawEntList()
 
 	for( i = 0; i < MAX_ENTITIES; i++ )
 	{
-		if( ( entList[ i ].inuse ) && ( entList[ i ].visible ) )
+		if( ( __entList[ i ].inuse ) && ( __entList[ i ].visible ) )
 		{
-			DrawEnt( &entList[ i ] );
+			DrawEnt( &__entList[ i ] );
 
-			if( entList[ i ].numFrames > 0 )
+			if( ( __entList[ i ].numFrames > 0 ) && ( __entList[ i ].drawNextFrame <= NOW ) )
 			{
-				entList[ i ].frame = ( entList[ i ].frame + 1 ) % entList[ i ].numFrames;
+				__entList[ i ].frame = ( __entList[ i ].frame + 1 ) % __entList[ i ].numFrames;
+				__entList[ i ].drawNextFrame = NOW + __entList[ i ].frameDelay;
 			}
 		}
 	}
@@ -133,7 +132,7 @@ void DrawEntList()
 
 void DrawEnt( Entity *ent )
 {
-	if( !ent->sprite == NULL )
+	if( ent->sprite != NULL )
 	{
 		DrawSprite( ent->sprite, screen, ent->position[ 0 ], ent->position[ 1 ], ent->frame );
 	}
