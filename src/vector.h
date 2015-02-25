@@ -20,11 +20,12 @@ typedef vec_t vec2_t[ 2 ];
 
 typedef enum
 {
-	MOVE_NO		= 0,
-	MOVE_UP		= 1,
-	MOVE_DOWN	= 2,
-	MOVE_LEFT	= 4,
-	MOVE_RIGHT	= 7
+	MOVE_NO			= 0,
+	MOVE_UP			= 1,
+	MOVE_DOWN		= 2,
+	MOVE_LEFT		= 4,
+	MOVE_RIGHT		= 8,
+	MOVE_TUG_OF_WAR = 15
 }Direction;
 
 

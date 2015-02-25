@@ -7,9 +7,11 @@
 extern Uint32 NOW;
 extern Uint8 *keys;
 
+
 void PlayerThink( Entity *self );
 void PlayerTouch( Entity *self, Entity *other );
 void PlayerDie( Entity *self );
+void PlayerMove( Entity *self );
 
 
 void LoadPlayer( Entity *self, char *filename )
@@ -114,7 +116,9 @@ void InitPlayer()
 	
 	self->Think = PlayerThink;
 	self->Touch = PlayerTouch;
-	self->Die = PlayerDie;/*
+	self->Die = PlayerDie;
+	self->Move = PlayerMove;
+	/*
 	self->World_Touch = PlayerWorldTouch;
 	*/
 }
@@ -122,9 +126,40 @@ void InitPlayer()
 
 void PlayerThink( Entity *self )
 {
-	if( keys[ SDLK_SPACE ] )
+	if( keys[ SDLK_w ] )
 	{
-		InitProjectile( self, self->opponent, self->projectile, self->position, MOVE_NO, 0 );
+		self->movedir |= MOVE_UP;
+	}
+	else
+	{
+		self->movedir &= ~MOVE_UP;
+	}
+	
+	if( keys[ SDLK_a ] )
+	{
+		self->movedir |= MOVE_LEFT;
+	}
+	else
+	{
+		self->movedir &= ~MOVE_LEFT;
+	}
+
+	if( keys[ SDLK_s ] )
+	{
+		self->movedir |= MOVE_DOWN;
+	}
+	else
+	{
+		self->movedir &= ~MOVE_DOWN;
+	}
+
+	if( keys[ SDLK_d ] )
+	{
+		self->movedir |= MOVE_RIGHT;
+	}
+	else
+	{
+		self->movedir &= ~MOVE_RIGHT;
 	}
 }
 
@@ -133,6 +168,31 @@ void PlayerTouch( Entity *self, Entity *other )
 {
 }
 
+
 void PlayerDie( Entity *self )
 {
+}
+
+
+void PlayerMove( Entity *self )
+{
+	if( self->movedir & MOVE_UP )
+	{
+		self->position[ 1 ] -= 1;
+	}
+
+	if( self->movedir & MOVE_DOWN )
+	{
+		self->position[ 1 ] += 1;
+	}
+
+	if( self->movedir & MOVE_LEFT )
+	{
+		self->position[ 0 ] -= 1;
+	}
+
+	if( self->movedir & MOVE_RIGHT )
+	{
+		self->position[ 0 ] += 1;
+	}
 }

@@ -92,18 +92,26 @@ Entity *NewEnt()
 }
 
 
-void ThinkEntities()
+void UpdateEnts()
 {
 	int i;
 
 	for( i = 0; i < MAX_ENTITIES; i++ )
 	{
-		if( ( __entList[ i ].inuse ) && ( __entList[ i ].Think != NULL ) )
+		if( __entList[ i ].inuse )
 		{
-			if( __entList[ i ].nextthink <= NOW )
+			if( __entList[ i ].Think != NULL )
 			{
-				__entList[ i ].Think( &__entList[ i ] );
-				__entList[ i ].nextthink = NOW + __entList[ i ].thinkrate;
+				if( __entList[ i ].nextthink <= NOW )
+				{
+					__entList[ i ].Think( &__entList[ i ] );
+					__entList[ i ].nextthink = NOW + __entList[ i ].thinkrate;
+				}
+			}
+
+			if( __entList[ i ].Move != NULL )
+			{
+				__entList[ i ].Move( &__entList[ i ] );
 			}
 		}
 	}

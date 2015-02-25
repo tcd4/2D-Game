@@ -33,7 +33,7 @@ int main( int argc, char *argv[] )
 
 		Draw();
 
-		ThinkEntities();
+		UpdateEnts();
 
 		NextFrame();
 		SDL_PumpEvents();

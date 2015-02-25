@@ -32,7 +32,7 @@ typedef struct entity_s
 	int				frame;			/**< frame the entity's sprite is on */
 	int				numFrames;		/**< number of frames in a row of a sprite sheet */
 	int				frameDelay;		/**< how long to wait until we draw the next frame */
-	int				drawNextFrame;	/**< the time to move to the next frame */
+	Uint32			drawNextFrame;	/**< the time to move to the next frame */
 	int				width, height;	/**< width and height of the sprite */
 
 	Sprite			*projectile;	/**< pointer to the entity's projectile sprite */
@@ -40,7 +40,7 @@ typedef struct entity_s
 	SDL_Rect		bbox;			/**< bounding box for the entity */
 
 	vec2_t			position;		/**< position of the entity */
-	Direction		movedir;		/**< move direction of the entity */
+	Uint16			movedir;		/**< move direction of the entity */
 	int				velocity;		/**< velocity of the entity */
 
 	int				visible;		/**< determines if the entity can be seen or not */
@@ -103,7 +103,7 @@ void	FreeEnt( Entity *ent );
 /**
  * @brief allows entities to have a mind of their own
  */
-void	ThinkEntities();
+void	UpdateEnts();
 
 
 #endif

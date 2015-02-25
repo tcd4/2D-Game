@@ -8,6 +8,7 @@ extern Uint32 NOW;
 
 void ProjectileThink( Entity *self );
 void ProjectileTouch( Entity *self, Entity *other );
+void ProjectileMove( Entity *self );
 
 
 void LoadProjectile( Entity *owner, char *filename )
