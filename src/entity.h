@@ -40,7 +40,7 @@ typedef struct entity_s
 	SDL_Rect		bbox;			/**< bounding box for the entity */
 
 	vec2_t			position;		/**< position of the entity */
-	vec2_t			movedir;		/**< move direction of the entity */
+	Direction		movedir;		/**< move direction of the entity */
 	int				velocity;		/**< velocity of the entity */
 
 	int				visible;		/**< determines if the entity can be seen or not */
@@ -53,6 +53,7 @@ typedef struct entity_s
 	void			( *Touch )( struct entity_s *self, struct entity_s *other );	/**< pointer to the entity's collision function */
 	void			( *Die )( struct entity_s *self );								/**< pointer to the entity's death function */
 	void			( *World_Touch )( struct entity_s *self, vec2_t contact_point );/**< function to call when this entity touches the world */ 
+	void			( *Move )( struct entity_s *self );
 }Entity;
 
 

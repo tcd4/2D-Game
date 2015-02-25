@@ -2,13 +2,13 @@
 
 
 extern SDL_Surface *screen;
-extern SDL_Event	Event;
-extern SDL_Rect		Camera;
-extern Uint32		NOW;
+extern SDL_Event Event;
+extern SDL_Rect Camera;
+extern Uint32 NOW;
 
 
-static Entity		* __entList = NULL;
-int			numEnts;
+static Entity * __entList = NULL;
+int	numEnts;
 
 
 void InitEntList()

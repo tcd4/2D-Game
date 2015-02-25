@@ -5,7 +5,7 @@
 
 
 extern Uint32 NOW;
-
+extern Uint8 *keys;
 
 void PlayerThink( Entity *self );
 void PlayerTouch( Entity *self, Entity *other );
@@ -94,6 +94,8 @@ void InitPlayer()
 
 	self->classname = "player";
 	self->self = self;
+	self->owner = NULL;
+	self->opponent = NULL;
 
 	LoadPlayer( self, "def/Marisa.txt" );
 	self->frame = 0;
@@ -102,6 +104,8 @@ void InitPlayer()
 
 	self->position[ 0 ] = 220 - ( self->width / 2 );
 	self->position[ 1 ] = 480 - self->height;
+	self->movedir = MOVE_NO;
+	self->velocity = 0;
 
 	self->deadflag = 0;
 	
@@ -118,6 +122,10 @@ void InitPlayer()
 
 void PlayerThink( Entity *self )
 {
+	if( keys[ SDLK_SPACE ] )
+	{
+		InitProjectile( self, self->opponent, self->projectile, self->position, MOVE_NO, 0 );
+	}
 }
 
 

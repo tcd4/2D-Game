@@ -56,3 +56,29 @@ void LoadProjectile( Entity *owner, char *filename )
 
 	owner->projectile = temp;
 }
+
+
+void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos, Direction movedir, int vel )
+{
+	Entity *self = NULL;
+
+	self = NewEnt();
+	if( self == NULL )
+	{
+		fprintf( stderr, "InitProjectile: ERROR: reached ent cap\n" );
+		return;
+	}
+
+	self->classname = "projectile";
+
+	self->self = self;
+	self->owner = owner;
+	self->opponent = opponent;
+
+	self->sprite = sprite;
+	self->frame = 0;
+	self->numFrames = 0;
+	self->visible = 1;
+
+	VectorCopy(pos,self->position);
+}

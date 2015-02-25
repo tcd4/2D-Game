@@ -10,7 +10,7 @@
 extern SDL_Surface *screen;
 extern SDL_Surface *buffer; /*pointer to the draw buffer*/
 extern SDL_Rect Camera;
-
+Uint8 *keys;
 
 void Init_All();
 void Draw();
@@ -21,7 +21,6 @@ int main( int argc, char *argv[] )
 {
 	int done;
 	int keyn;
-	Uint8 *keys;
 
 	Init_All();
 
