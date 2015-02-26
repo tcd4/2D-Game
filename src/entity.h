@@ -41,7 +41,7 @@ typedef struct entity_s
 
 	vec2_t			position;		/**< position of the entity */
 	Uint16			movedir;		/**< move direction of the entity */
-	int				velocity;		/**< velocity of the entity */
+	vec2_t			velocity;		/**< velocity of the entity */
 
 	int				visible;		/**< determines if the entity can be seen or not */
 	int				deadflag;		/**< determines if the entity has died */

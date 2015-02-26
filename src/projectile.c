@@ -59,7 +59,7 @@ void LoadProjectile( Entity *owner, char *filename )
 }
 
 
-void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos, Direction movedir, int vel )
+void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos, vec2_t vel )
 {
 	Entity *self = NULL;
 

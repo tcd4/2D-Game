@@ -107,7 +107,8 @@ void InitPlayer()
 	self->position[ 0 ] = 220 - ( self->width / 2 );
 	self->position[ 1 ] = 480 - self->height;
 	self->movedir = MOVE_NO;
-	self->velocity = 0;
+	self->velocity[ 0 ] = 0;
+	self->velocity[ 0 ] = 0;
 
 	self->deadflag = 0;
 	
@@ -126,40 +127,30 @@ void InitPlayer()
 
 void PlayerThink( Entity *self )
 {
+	CheckInput( self );
+}
+
+
+void CheckInput( Entity *self )
+{
+	self->movedir = 0;
+
 	if( keys[ SDLK_w ] )
 	{
 		self->movedir |= MOVE_UP;
 	}
-	else
+	else if( keys[ SDLK_s ] )
 	{
-		self->movedir &= ~MOVE_UP;
+		self->movedir |= MOVE_DOWN;
 	}
-	
+
 	if( keys[ SDLK_a ] )
 	{
 		self->movedir |= MOVE_LEFT;
 	}
-	else
-	{
-		self->movedir &= ~MOVE_LEFT;
-	}
-
-	if( keys[ SDLK_s ] )
-	{
-		self->movedir |= MOVE_DOWN;
-	}
-	else
-	{
-		self->movedir &= ~MOVE_DOWN;
-	}
-
-	if( keys[ SDLK_d ] )
+	else if( keys[ SDLK_d ] )
 	{
 		self->movedir |= MOVE_RIGHT;
-	}
-	else
-	{
-		self->movedir &= ~MOVE_RIGHT;
 	}
 }
 
@@ -176,23 +167,76 @@ void PlayerDie( Entity *self )
 
 void PlayerMove( Entity *self )
 {
-	if( self->movedir & MOVE_UP )
+	if( !self->movedir )
 	{
-		self->position[ 1 ] -= 1;
-	}
-
-	if( self->movedir & MOVE_DOWN )
-	{
-		self->position[ 1 ] += 1;
+		return;
 	}
 
 	if( self->movedir & MOVE_LEFT )
 	{
-		self->position[ 0 ] -= 1;
+		/* instantly go the opposite direction instead of slowing down first */
+		if( self->velocity[ 0 ] > 0 )
+		{
+			self->velocity[ 0 ] = 0;
+		}
+
+		self->velocity[ 0 ]--;
+	}
+	else if( self->movedir & MOVE_RIGHT )
+	{
+		if( self->velocity[ 0 ] < 0 )
+		{
+			self->velocity[ 0 ] = 0;
+		}
+
+		self->velocity[ 0 ]++;
+	}
+	else
+	{
+		self->velocity[ 0 ] = 0;
 	}
 
-	if( self->movedir & MOVE_RIGHT )
+	if( self->movedir & MOVE_UP )
 	{
-		self->position[ 0 ] += 1;
+		if( self->velocity[ 1 ] > 0 )
+		{
+			self->velocity[ 1 ] = 0;
+		}
+
+		self->velocity[ 1 ]--;
 	}
+	else if( self->movedir & MOVE_DOWN )
+	{
+		if( self->velocity[ 1 ] < 0 )
+		{
+			self->velocity[ 1 ] = 0;
+		}
+
+		self->velocity[ 1 ]++;
+	}
+	else
+	{
+		self->velocity[ 1 ] = 0;
+	}
+	
+	/* make sure to not go to fast in any direction */
+	if( self->velocity[ 0 ] > MAX_VELOCITY )
+	{
+		self->velocity[ 0 ] = MAX_VELOCITY;
+	}
+	else if( self->velocity[ 0 ] < -MAX_VELOCITY )
+	{
+		self->velocity[ 0 ] = -MAX_VELOCITY;
+	}
+
+	if( self->velocity[ 1 ] > MAX_VELOCITY )
+	{
+		self->velocity[ 1 ] = MAX_VELOCITY;
+	}
+	else if( self->velocity[ 1 ] < -MAX_VELOCITY )
+	{
+		self->velocity[ 1 ] = -MAX_VELOCITY;
+	}
+	
+	VectorAdd( self->velocity, self->position, self->position );
 }

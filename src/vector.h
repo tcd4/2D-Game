@@ -18,17 +18,6 @@ typedef int vec_t;
 typedef vec_t vec2_t[ 2 ];
 
 
-typedef enum
-{
-	MOVE_NO			= 0,
-	MOVE_UP			= 1,
-	MOVE_DOWN		= 2,
-	MOVE_LEFT		= 4,
-	MOVE_RIGHT		= 8,
-	MOVE_TUG_OF_WAR = 15
-}Direction;
-
-
 #define VectorSubtract(a,b,c)	(c[0]=a[0]-b[0],c[1]=a[1]-b[1])
 #define VectorAdd(a,b,c)		(c[0]=a[0]+b[0],c[1]=a[1]+b[1])
 #define VectorCopy(a,b)			(b[0]=a[0],b[1]=a[1])

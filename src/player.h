@@ -11,6 +11,21 @@
 
 #include "entity.h"
 
+
+#define MAX_VELOCITY 5
+
+
+typedef enum
+{
+	MOVE_NO			= 0,
+	MOVE_UP			= 1,
+	MOVE_DOWN		= 2,
+	MOVE_LEFT		= 4,
+	MOVE_RIGHT		= 8,
+	MOVE_TUG_OF_WAR = 15
+}Direction;
+
+
 /**
  * @brief initializes the player
  */
@@ -23,6 +38,13 @@ void InitPlayer();
  * @param filename the file name and path to the player defintion file
  */
 void LoadPlayer( Entity *self, char *filename);
+
+/**
+ * @brief checks the input to adjust the player
+ *
+ * @param self a pointer to the player entity
+ */
+void CheckInput( Entity *self );
 
 
 #endif
