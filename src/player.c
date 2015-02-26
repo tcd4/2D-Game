@@ -6,6 +6,7 @@
 
 extern Uint32 NOW;
 extern Uint8 *keys;
+extern SDL_Surface *screen;
 
 
 void PlayerThink( Entity *self );
@@ -152,6 +153,11 @@ void CheckInput( Entity *self )
 	{
 		self->movedir |= MOVE_RIGHT;
 	}
+
+	if( keys[ SDLK_SPACE ] )
+	{
+		/* change firing mode */
+	}
 }
 
 
@@ -239,4 +245,23 @@ void PlayerMove( Entity *self )
 	}
 	
 	VectorAdd( self->velocity, self->position, self->position );
+
+	/* make sure we stay on the screen */
+	if( self->position[ 0 ] < 0 )
+	{
+		self->position[ 0 ] = 0;
+	}
+	else if( (self->position[ 0 ] + self->width ) > screen->w )
+	{
+		self->position[ 0 ] = screen->w - self->width;
+	}
+
+	if( self->position[ 1 ] < 0 )
+	{
+		self->position[ 1 ] = 0;
+	}
+	else if( (self->position[ 1 ] + self->height ) > screen->h )
+	{
+		self->position[ 1 ] = screen->h - self->height;
+	}
 }
