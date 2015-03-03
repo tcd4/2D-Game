@@ -84,7 +84,7 @@ void LoadPlayer( Entity *self, char *filename )
 		else if( strncmp( buf, "mode:", 128 ) == 0 )
 		{
 			fscanf( charfile, "%s", modedefpath );
-			LoadMode( &modeList[ 0 ], modedefpath );
+			LoadMode( &modeList[ loadedmodes ], modedefpath );
 			loadedmodes++;
 		}
 	}
@@ -192,7 +192,7 @@ void CheckInput( Entity *self )
 
 	if( keys[ SDLK_SPACE ] )
 	{
-		/* change firing mode */
+		__curMode = ( __curMode + 1 ) % __numModes;
 	}
 }
 
