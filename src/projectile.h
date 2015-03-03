@@ -26,8 +26,8 @@ void LoadProjectile( Entity *owner, char *filename );
  * @param sprite a pointer to the projectile's sprite
  * @param pos the starting position of the projectile
  * @param movedir the move direction of the projectile
- * @param vel the velocity of the projectile
+ * @param v the velocity of the projectile
  */
-void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos, vec2_t vel );
+void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos, vec2_t v );
 
 #endif

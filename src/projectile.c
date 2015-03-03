@@ -6,7 +6,6 @@
 extern Uint32 NOW;
 
 
-void ProjectileThink( Entity *self );
 void ProjectileTouch( Entity *self, Entity *other );
 void ProjectileMove( Entity *self );
 
@@ -59,7 +58,7 @@ void LoadProjectile( Entity *owner, char *filename )
 }
 
 
-void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos, vec2_t vel )
+void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos, vec2_t v )
 {
 	Entity *self = NULL;
 
@@ -81,5 +80,14 @@ void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos
 	self->numFrames = 0;
 	self->visible = 1;
 
-	VectorCopy(pos,self->position);
+	VectorCopy( pos, self->position );
+	VectorCopy( v, self->velocity );
+
+	self->Move = ProjectileMove;
+}
+
+
+void ProjectileMove( Entity *self )
+{
+	VectorAdd( self->position, self->velocity, self->position );
 }

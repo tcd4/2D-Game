@@ -1,4 +1,5 @@
 #include "player.h"
+#include "firingmode.h"
 #include "projectile.h"
 #include <string.h>
 #include <stdio.h>
@@ -8,6 +9,10 @@ extern Uint32 NOW;
 extern Uint8 *keys;
 extern SDL_Surface *screen;
 
+
+static int __numModes = 0;
+static int __curMode = 0;
+Mode *modeList = NULL;
 
 void PlayerThink( Entity *self );
 void PlayerTouch( Entity *self, Entity *other );
@@ -21,11 +26,13 @@ void LoadPlayer( Entity *self, char *filename )
 	char buf[ 128 ];
 	char charimagepath[ 128 ];
 	char projdefpath[ 128 ];
+	char modedefpath[ 128 ];
 	int w, h;
 	int col;
 	int delay;
+	int loadedmodes = 0;
 	Sprite *temp;
-	
+
 	charfile = fopen( filename, "r" );
 	if( charfile == NULL )
 	{
@@ -35,7 +42,7 @@ void LoadPlayer( Entity *self, char *filename )
 
 	while( fscanf( charfile, "%s", buf ) != EOF )
 	{
-		if( buf[0] == '#' )
+		if( buf[ 0 ] == '#' )
 		{
 			fgets( buf, sizeof( buf ), charfile );
 		}
@@ -62,6 +69,23 @@ void LoadPlayer( Entity *self, char *filename )
 		else if( strncmp( buf, "proj:", 128 ) == 0 )
 		{
 			fscanf( charfile, "%s", projdefpath );
+		}
+		else if( strncmp( buf, "numMode:", 128 ) == 0 )
+		{
+			fscanf( charfile, "%i", &__numModes );
+			modeList = (Mode *)malloc( sizeof( Mode ) * __numModes );
+
+			if( modeList == NULL )
+			{
+				fprintf( stderr, "LoadPlayer: FATAL: cannot allocate mode list\n" );
+				exit( -1 );
+			}
+		}
+		else if( strncmp( buf, "mode:", 128 ) == 0 )
+		{
+			fscanf( charfile, "%s", modedefpath );
+			LoadMode( &modeList[ 0 ], modedefpath );
+			loadedmodes++;
 		}
 	}
 
@@ -100,7 +124,7 @@ void InitPlayer()
 	self->owner = NULL;
 	self->opponent = NULL;
 
-	LoadPlayer( self, "def/Marisa.txt" );
+	LoadPlayer( self, "def/Marisa/Marisa.txt" );
 	self->frame = 0;
 	self->drawNextFrame = NOW + self->frameDelay;
 	self->visible = 1;
@@ -129,6 +153,13 @@ void InitPlayer()
 void PlayerThink( Entity *self )
 {
 	CheckInput( self );
+
+	if( modeList[ __curMode ].nextFire <= NOW )
+	{
+		Fire( self, &modeList[ __curMode ] );
+
+		modeList[ __curMode ].nextFire = NOW + modeList[ __curMode ].fireRate;
+	}
 }
 
 

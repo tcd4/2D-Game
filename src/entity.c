@@ -21,7 +21,6 @@ void InitEntList()
     {
         fprintf( stderr, "Init__entList: FATAL: cannot allocate entity list\n" );
         exit( -1 );
-        return;
     }
 
 	memset( __entList, 0, sizeof( Entity ) * MAX_ENTITIES );
