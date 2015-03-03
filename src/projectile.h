@@ -28,6 +28,6 @@ void LoadProjectile( Entity *owner, char *filename );
  * @param movedir the move direction of the projectile
  * @param v the velocity of the projectile
  */
-void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos, vec2_t v );
+void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos, vec2_t v, Uint32 fuse);
 
 #endif

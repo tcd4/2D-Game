@@ -58,6 +58,11 @@ void LoadMode( Mode *mode, char *filename )
 		exit( -1 );
 	}
 
+	if( !mode->fuse )
+	{
+		mode->fuse = 0;
+	}
+
 	mode->velocities[ 0 ][ 1 ] = -v;
 	mode->velocities[ 0 ][ 0 ] = 0;
 	mode->nextFire = NOW + mode->fireRate;
@@ -86,6 +91,6 @@ void Fire( Entity *ent, Mode *mode )
 
 	for( i = 0; i < mode->numProj; i++ )
 	{
-		InitProjectile( ent, ent->opponent, ent->projectile, mode->origin, mode->velocities[ 0 ] );
+		InitProjectile( ent, ent->opponent, ent->projectile, mode->origin, mode->velocities[ 0 ], mode->fuse );
 	}
 }

@@ -4,6 +4,7 @@
 
 
 extern Uint32 NOW;
+extern SDL_Surface *screen;
 
 
 void ProjectileTouch( Entity *self, Entity *other );
@@ -58,7 +59,7 @@ void LoadProjectile( Entity *owner, char *filename )
 }
 
 
-void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos, vec2_t v )
+void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos, vec2_t v, Uint32 fuse )
 {
 	Entity *self = NULL;
 
@@ -80,14 +81,33 @@ void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos
 	self->numFrames = 0;
 	self->visible = 1;
 
+	self->width = self->sprite->w;
+	self->height = self->sprite->h;
+
 	VectorCopy( pos, self->position );
 	VectorCopy( v, self->velocity );
 
 	self->Move = ProjectileMove;
+
+	if( fuse )
+	{
+		self->nextthink = NOW + fuse;
+		self->Think = FreeEnt;
+	}
 }
 
 
 void ProjectileMove( Entity *self )
 {
 	VectorAdd( self->position, self->velocity, self->position );
+
+	/*if there's no life timer, kill the projectile as soon as it leaves the screen*/
+	if( !self->nextthink )
+	{
+		if( ( self->position[ 0 ] > screen->w ) || ( self->position[ 0 ] + self->width < 0 ) ||
+			( self->position[ 1 ] > screen->h ) || ( self->position[ 1 ] - self->height < 0 ) )
+		{
+			FreeEnt( self );
+		}
+	}
 }

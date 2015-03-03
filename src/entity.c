@@ -62,6 +62,8 @@ void FreeEnt( Entity *ent )
 	ent->inuse = 0;
 
 	memset( ent, 0, sizeof( Entity ) );
+
+	fprintf( stderr, "freed ent\n" );
 }
 
 
@@ -81,12 +83,10 @@ Entity *NewEnt()
 			__entList[ i ].inuse = 1;
 			numEnts++;
 
-			fprintf( stderr, "new ent created at index %i\n", i );
 			return &__entList[ i ];
 		}
 	}
 
-	fprintf( stderr, "new ent created at index %i\n" );
 	return NULL;
 }
 
