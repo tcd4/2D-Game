@@ -41,7 +41,6 @@ void LoadMode( Mode *mode, char *filename )
 		else if( strncmp( buf, "angle:", 128 ) == 0 )
 		{
 			fscanf( modefile, "%i", &mode->angle );
-			mode->angle = ( mode->angle / 2 ) + 90;
 		}
 		else if( strncmp( buf, "fuse:", 128 ) == 0 )
 		{
@@ -77,11 +76,29 @@ void LoadMode( Mode *mode, char *filename )
 void FindVelocities( Mode *mode, int v )
 {
 	int i;
-	int ang = mode->angle;
+	double x, y;
+	double ang = ( mode->angle / 2 ) - 90;
+	double angrad;
+	double dec = mode->angle / ( mode->numProj - 1 );
 
 	for( i = 0; i < mode->numProj; i++ )
 	{
 		VectorClear( mode->velocities[ i ] );
+		angrad = ang * ( PI / 180 );
+
+		fprintf( stderr, "degrees: %f\n", ang );
+		fprintf( stderr, "radians: %f\n", angrad );
+
+		x = ( cos( angrad ) ) * v;
+		y = ( sin( angrad ) ) * v;
+
+		fprintf( stderr, "x velocity: %f\n", x );
+		fprintf( stderr, "y velocity: %f\n\n", y );
+
+		mode->velocities[ i ][ 0 ] = x;
+		mode->velocities[ i ][ 1 ] = y;
+
+		ang -= dec;
 	}
 }
 

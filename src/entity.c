@@ -62,8 +62,6 @@ void FreeEnt( Entity *ent )
 	ent->inuse = 0;
 
 	memset( ent, 0, sizeof( Entity ) );
-
-	fprintf( stderr, "freed ent\n" );
 }
 
 
