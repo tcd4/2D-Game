@@ -85,6 +85,7 @@ Entity *NewEnt()
 		}
 	}
 
+	fprintf( stderr, "hit entity cap\n" );
 	return NULL;
 }
 

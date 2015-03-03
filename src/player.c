@@ -111,6 +111,7 @@ void LoadPlayer( Entity *self, char *filename )
 void InitPlayer()
 {
 	Entity *self = NULL;
+	float x, y;
 
 	self = NewEnt();
 	if( self == NULL )
@@ -129,8 +130,10 @@ void InitPlayer()
 	self->drawNextFrame = NOW + self->frameDelay;
 	self->visible = 1;
 
-	self->position[ 0 ] = 220 - ( self->width / 2 );
-	self->position[ 1 ] = 480 - self->height;
+	x = ( screen->w / 2 ) - ( self->width / 2 );
+	y = screen->h - self->height;
+	self->position[ 0 ] = x;
+	self->position[ 1 ] = y;
 	self->movedir = MOVE_NO;
 	self->velocity[ 0 ] = 0;
 	self->velocity[ 0 ] = 0;

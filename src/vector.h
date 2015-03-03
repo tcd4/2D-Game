@@ -17,7 +17,7 @@
 /**
  * @purpose to provide a basic 2D vector structure
  */
-typedef int vec_t;
+typedef float vec_t;
 typedef vec_t vec2_t[ 2 ];
 
 

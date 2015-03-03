@@ -86,14 +86,8 @@ void FindVelocities( Mode *mode, int v )
 		VectorClear( mode->velocities[ i ] );
 		angrad = ang * ( PI / 180 );
 
-		fprintf( stderr, "degrees: %f\n", ang );
-		fprintf( stderr, "radians: %f\n", angrad );
-
 		x = ( cos( angrad ) ) * v;
 		y = ( sin( angrad ) ) * v;
-
-		fprintf( stderr, "x velocity: %f\n", x );
-		fprintf( stderr, "y velocity: %f\n\n", y );
 
 		mode->velocities[ i ][ 0 ] = x;
 		mode->velocities[ i ][ 1 ] = y;
