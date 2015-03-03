@@ -59,7 +59,7 @@ void LoadProjectile( Entity *owner, char *filename )
 }
 
 
-void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos, vec2_t v, Uint32 fuse )
+void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos, vec2_t v, Uint32 fuse, int damage )
 {
 	Entity *self = NULL;
 
@@ -86,6 +86,8 @@ void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos
 
 	VectorCopy( pos, self->position );
 	VectorCopy( v, self->velocity );
+
+	self->damage = damage;
 
 	self->Move = ProjectileMove;
 

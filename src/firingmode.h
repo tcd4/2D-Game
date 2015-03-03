@@ -21,6 +21,7 @@ typedef struct mode_s
 	vec2_t origin;		/**< spot to fire the projectiles */
 	int angle;			/**< cone of fire */
 	Uint32 fuse;		/**< time until projectiles expire */
+	int damage;			/**< amount of damage each projectile does */
 }Mode;
 
 /**

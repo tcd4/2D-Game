@@ -47,6 +47,10 @@ void LoadMode( Mode *mode, char *filename )
 		{
 			fscanf( modefile, "%i", &mode->fuse );
 		}
+		else if( strncmp( buf, "damage:", 128 ) == 0 )
+		{
+			fscanf( modefile, "%i", &mode->damage );
+		}
 	}
 
 	fclose( modefile );
@@ -66,7 +70,7 @@ void LoadMode( Mode *mode, char *filename )
 	mode->velocities[ 0 ][ 1 ] = -v;
 	mode->velocities[ 0 ][ 0 ] = 0;
 	mode->nextFire = NOW + mode->fireRate;
-	//FindVelocities( mode );
+	FindVelocities( mode, v );
 }
 
 
@@ -77,7 +81,7 @@ void FindVelocities( Mode *mode, int v )
 
 	for( i = 0; i < mode->numProj; i++ )
 	{
-
+		VectorClear( mode->velocities[ i ] );
 	}
 }
 
@@ -91,6 +95,6 @@ void Fire( Entity *ent, Mode *mode )
 
 	for( i = 0; i < mode->numProj; i++ )
 	{
-		InitProjectile( ent, ent->opponent, ent->projectile, mode->origin, mode->velocities[ 0 ], mode->fuse );
+		InitProjectile( ent, ent->opponent, ent->projectile, mode->origin, mode->velocities[ i ], mode->fuse, mode->damage );
 	}
 }

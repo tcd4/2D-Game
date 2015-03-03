@@ -43,6 +43,8 @@ typedef struct entity_s
 	int				visible;		/**< determines if the entity can be seen or not */
 	int				deadflag;		/**< determines if the entity has died */
 
+	int				damage;			/**< amount of damage the entity deals to the opponent */
+
 	Uint32			thinkrate;		/**< determines how often the entity thinks */
 	Uint32			nextthink;		/**< determines when the entity will think next */
 

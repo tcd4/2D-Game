@@ -137,6 +137,8 @@ void InitPlayer()
 
 	self->deadflag = 0;
 	
+	self->damage = 0;
+
 	self->thinkrate = 50;
 	self->nextthink = NOW + self->thinkrate;
 	
