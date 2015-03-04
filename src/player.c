@@ -121,7 +121,7 @@ void InitPlayer()
 	self->owner = NULL;
 	self->opponent = NULL;
 
-	LoadPlayer( self, "def/Marisa/Marisa.txt" );
+	LoadPlayer( self, "def/Characters/Marisa/Marisa.txt" );
 	self->frame = 0;
 	self->drawNextFrame = NOW + self->frameDelay;
 	self->visible = 1;

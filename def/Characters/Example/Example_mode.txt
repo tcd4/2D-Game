@@ -1,0 +1,6 @@
+numProj:	number of projectiles to be fired
+rate:		fire rate of this mode (in ms)
+v:			velocity of the projectiles
+angle:		cone of fire
+fuse:		time until projectiles expire (in ms)(optional: projectiles will just expire when they leave the screen)
+damage:		amount of damage each projectile will do

@@ -1,0 +1,7 @@
+sprite: 	path to character's sprite
+height: 	height of the sprite (in px)
+width: 		width of the sprite (in px)
+columns: 	number of frames in the sprite sheet
+delay: 		how long between frame switches (change the animation speed)
+proj: 		path to the character's projectile def file
+mode: 		path to the firing mode def file (can have multiple of these)
