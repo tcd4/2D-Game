@@ -13,6 +13,7 @@
 
 
 #define MAX_VELOCITY 5
+#define MODE_SWITCH_CD 500
 
 
 typedef enum

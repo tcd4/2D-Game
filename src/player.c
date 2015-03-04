@@ -12,6 +12,7 @@ extern SDL_Surface *screen;
 
 static int __numModes = 0;
 static int __curMode = 0;
+static Uint32 __canModeSwitch = 0;
 Mode *modeList = NULL;
 
 void PlayerThink( Entity *self );
@@ -30,8 +31,8 @@ void LoadPlayer( Entity *self, char *filename )
 	int w, h;
 	int col;
 	int delay;
-	int loadedmodes = 0;
-	Sprite *temp;
+	Sprite *stemp;
+	Mode *mtemp;
 
 	charfile = fopen( filename, "r" );
 	if( charfile == NULL )
@@ -70,29 +71,24 @@ void LoadPlayer( Entity *self, char *filename )
 		{
 			fscanf( charfile, "%s", projdefpath );
 		}
-		else if( strncmp( buf, "numMode:", 128 ) == 0 )
-		{
-			fscanf( charfile, "%i", &__numModes );
-			modeList = (Mode *)malloc( sizeof( Mode ) * __numModes );
-
-			if( modeList == NULL )
-			{
-				fprintf( stderr, "LoadPlayer: FATAL: cannot allocate mode list\n" );
-				exit( -1 );
-			}
-		}
 		else if( strncmp( buf, "mode:", 128 ) == 0 )
 		{
 			fscanf( charfile, "%s", modedefpath );
-			LoadMode( &modeList[ loadedmodes ], modedefpath );
-			loadedmodes++;
+			
+			__numModes++;
+
+			mtemp = (Mode *)malloc( sizeof( Mode ) * __numModes );
+			memcpy( mtemp, modeList, sizeof( Mode ) * ( __numModes - 1 ) );
+			modeList = mtemp;
+
+			LoadMode( &modeList[ __numModes - 1 ], modedefpath );
 		}
 	}
 
 	fclose( charfile );
 
-	temp = LoadSprite( charimagepath, w, h );
-	if( !temp )
+	stemp = LoadSprite( charimagepath, w, h );
+	if( !stemp )
 	{
 		fprintf( stderr, "LoadPlayer: FATAL: could not open sprite file: %s\n", charimagepath );
 		exit( -1 );
@@ -100,7 +96,7 @@ void LoadPlayer( Entity *self, char *filename )
 
 	LoadProjectile( self, projdefpath );
 
-	self->sprite = temp;
+	self->sprite = stemp;
 	self->width = w;
 	self->height = h;
 	self->numFrames = col;
@@ -149,9 +145,8 @@ void InitPlayer()
 	self->Touch = PlayerTouch;
 	self->Die = PlayerDie;
 	self->Move = PlayerMove;
-	/*
-	self->World_Touch = PlayerWorldTouch;
-	*/
+	
+	__canModeSwitch = NOW;
 }
 
 
@@ -192,7 +187,12 @@ void CheckInput( Entity *self )
 
 	if( keys[ SDLK_SPACE ] )
 	{
-		__curMode = ( __curMode + 1 ) % __numModes;
+		if( __canModeSwitch <= NOW )
+		{
+			__canModeSwitch = NOW + MODE_SWITCH_CD;
+
+			__curMode = ( __curMode + 1 ) % __numModes;		
+		}
 	}
 }
 
