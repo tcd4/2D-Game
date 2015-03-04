@@ -1,0 +1,9 @@
+sprite: images/Marisa.png
+height: 33
+width: 31
+columns: 8
+delay: 60
+proj: def/Characters/Marisa/Marisa_projectile.txt
+mode: def/Characters/Marisa/Marisa_mode_wide.txt
+mode: def/Characters/Marisa/Marisa_mode_narrow.txt
+

@@ -1,0 +1,5 @@
+numProj: 7
+rate: 50
+v: 10
+angle: 60
+damage: 10
