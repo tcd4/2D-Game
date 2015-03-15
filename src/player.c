@@ -31,6 +31,7 @@ void LoadPlayer( Entity *self, char *filename )
 	int w, h;
 	int col;
 	int delay;
+	int dmg;
 	Sprite *stemp;
 	Mode *mtemp;
 
@@ -83,6 +84,10 @@ void LoadPlayer( Entity *self, char *filename )
 
 			LoadMode( &modeList[ __numModes - 1 ], modedefpath );
 		}
+		else if( strncmp( buf, "damage:", 128 ) == 0 )
+		{
+			fscanf( charfile, "%i", &dmg );
+		}
 	}
 
 	fclose( charfile );
@@ -101,10 +106,11 @@ void LoadPlayer( Entity *self, char *filename )
 	self->height = h;
 	self->numFrames = col;
 	self->frameDelay = delay;
+	self->damage = dmg;
 }
 
 
-void InitPlayer()
+Entity *InitPlayer()
 {
 	Entity *self = NULL;
 	float x, y;
@@ -147,6 +153,8 @@ void InitPlayer()
 	self->Move = PlayerMove;
 	
 	__canModeSwitch = NOW;
+
+	return self;
 }
 
 

@@ -1,10 +1,14 @@
 #include "level.h"
+#include "player.h"
+#include "boss.h"
 #include <string.h>
 #include <stdio.h>
 
 
 static Level __level;
 extern SDL_Surface *screen;
+Entity *player = NULL;
+Entity *boss = NULL;
 
 
 void LoadLevel( char *filename )
@@ -12,7 +16,7 @@ void LoadLevel( char *filename )
 	FILE *levelfile = NULL;
 	char buf[ 128 ];
 	char bgimagepath[ 128 ];
-	int w, h;
+	char bosspath[ 128 ];
 	Sprite *temp;
 
 	levelfile = fopen( filename, "r" );
@@ -32,19 +36,15 @@ void LoadLevel( char *filename )
 		{
 			fscanf( levelfile, "%s", bgimagepath );
 		}
-		else if( strncmp( buf, "width:", 128 ) == 0 )
+		else if( strncmp( buf, "boss:", 128 ) == 0 )
 		{
-			fscanf( levelfile, "%i", &w );
-		}
-		else if( strncmp( buf, "height:", 128 ) == 0 )
-		{
-			fscanf( levelfile, "%i", &h );
+			fscanf( levelfile, "%s", bosspath );
 		}
 	}
 
 	fclose( levelfile );
 
-	temp = LoadSprite( bgimagepath, w, h );
+	temp = LoadSprite( bgimagepath, screen->w, screen->h );
 	if( !temp )
 	{
 		fprintf( stderr, "LoadLevel: FATAL: could not open sprite file: %s\n", bgimagepath );
@@ -55,6 +55,9 @@ void LoadLevel( char *filename )
 
 	__level.bgImage = temp;
 	__level.loaded = 1;
+
+	player = InitPlayer();
+	boss = InitBoss( bosspath );
 }
 
 

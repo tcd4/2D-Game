@@ -29,11 +29,13 @@ typedef enum
 
 /**
  * @brief initializes the player
+ *
+ * @return a pointer to the player entity
  */
-void InitPlayer();
+Entity *InitPlayer();
 
 /**
- * @brief loads the specfied player from character.txt
+ * @brief loads the specfied player
  *
  * @param self a pointer to the player entity
  * @param filename the file name and path to the player defintion file

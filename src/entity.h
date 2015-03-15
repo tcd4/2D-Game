@@ -23,7 +23,6 @@ typedef struct entity_s
 
 	struct entity_s *self;			/**< pointer to itself */
 	struct entity_s	*owner;			/**< pointer to the entity that owns this one */
-	struct entity_s *opponent;		/**< pointer to the opponent entity */
 
 	Sprite			*sprite;		/**< pointer to the entity's sprite */
 	int				frame;			/**< frame the entity's sprite is on */
@@ -34,6 +33,8 @@ typedef struct entity_s
 
 	Sprite			*projectile;	/**< pointer to the entity's projectile sprite */
 
+	int				collision;		/**< determines if the entity has collision */
+	struct entity_s *opponent;		/**< pointer to entities this entity can collide with */
 	SDL_Rect		bbox;			/**< bounding box for the entity */
 
 	vec2_t			position;		/**< position of the entity */
@@ -43,6 +44,7 @@ typedef struct entity_s
 	int				visible;		/**< determines if the entity can be seen or not */
 	int				deadflag;		/**< determines if the entity has died */
 
+	int				health;			/**< amount of damage the entity can take */
 	int				damage;			/**< amount of damage the entity deals to the opponent */
 
 	Uint32			thinkrate;		/**< determines how often the entity thinks */

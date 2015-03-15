@@ -24,7 +24,7 @@ int main( int argc, char *argv[] )
 
 	Init_All();
 
-	LoadLevel( "def/Flame_Empress_Level.txt" );
+	LoadLevel( "def/Levels/Flame_Empress_Level.txt" );
 
 	done = 0;
 	do
@@ -72,7 +72,6 @@ void Init_All()
 	InitLevelSystem();
 	InitAudio();
 	InitEntList();
-	InitPlayer();
 
 	atexit( CleanUpAll );
 }
