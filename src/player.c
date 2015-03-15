@@ -15,6 +15,7 @@ static int __curMode = 0;
 static Uint32 __canModeSwitch = 0;
 Mode *modeList = NULL;
 
+
 void PlayerThink( Entity *self );
 void PlayerTouch( Entity *self, Entity *other );
 void PlayerDie( Entity *self );
@@ -137,8 +138,7 @@ Entity *InitPlayer()
 	self->position[ 0 ] = x;
 	self->position[ 1 ] = y;
 	self->movedir = MOVE_NO;
-	self->velocity[ 0 ] = 0;
-	self->velocity[ 0 ] = 0;
+	VectorClear( self->velocity );
 
 	self->deadflag = 0;
 	
