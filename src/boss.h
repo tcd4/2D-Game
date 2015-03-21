@@ -53,4 +53,27 @@ void CalculateVelocity( Entity *self );
  * @brief removes the starting node from the path list
  */
 void RemovePath();
+
+/**
+ * @brief allows the boss to use abilities
+ *
+ * @param self a pointer to the boss entity
+ */
+void UseAbilities( Entity *self );
+
+/**
+ * @brief stops all abilities that can be stopped
+ */
+void EndAbilities();
+
+/**
+ * @brief stops all abilities that can be stopped
+ */
+void EndAllAbilities();
+
+/**
+ * @brief unlocks the lock on ability use
+ */
+void Unlock();
+
 #endif

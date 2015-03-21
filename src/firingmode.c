@@ -76,7 +76,7 @@ void LoadMode( Mode *mode, char *filename )
 void FindVelocities( Mode *mode, int v )
 {
 	int i;
-	double x, y;
+	double vx, vy;
 	double ang = ( mode->angle / 2 ) - 90;
 	double angrad;
 	double dec = mode->angle / ( mode->numProj - 1 );
@@ -86,11 +86,11 @@ void FindVelocities( Mode *mode, int v )
 		VectorClear( mode->velocities[ i ] );
 		angrad = ang * ( PI / 180 );
 
-		x = ( cos( angrad ) ) * v;
-		y = ( sin( angrad ) ) * v;
+		vx = ( cos( angrad ) ) * v;
+		vy = ( sin( angrad ) ) * v;
 
-		mode->velocities[ i ][ 0 ] = x;
-		mode->velocities[ i ][ 1 ] = y;
+		mode->velocities[ i ][ 0 ] = vx;
+		mode->velocities[ i ][ 1 ] = vy;
 
 		ang -= dec;
 	}

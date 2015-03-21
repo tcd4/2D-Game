@@ -27,6 +27,8 @@ void LoadProjectile( Entity *owner, char *filename );
  * @param pos the starting position of the projectile
  * @param movedir the move direction of the projectile
  * @param v the velocity of the projectile
+ * @param fuse the duration the projectile will last
+ * @param damage the damage the projectile will do
  */
 void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos, vec2_t v, Uint32 fuse, int damage );
 

@@ -11,6 +11,9 @@ extern Uint32 NOW;
 
 static int __yBound;
 static int __moveSpeed;
+static int __numAbilities;
+Uint32 cooldown;
+int lock;
 struct Path *path;
 Ability *abilityList = NULL;
 
@@ -30,7 +33,8 @@ void LoadBoss( Entity *self, char *filename )
 	char abildefpath[ 128 ];
 	Sprite *stemp;
 	Ability *atemp;
-	int numAbil = 0;
+
+	__numAbilities = 0;
 
 	bossfile = fopen( filename, "r" );
 	if( bossfile == NULL )
@@ -81,13 +85,13 @@ void LoadBoss( Entity *self, char *filename )
 		{
 			fscanf( bossfile, "%s", abildefpath );
 
-			numAbil++;
+			__numAbilities++;
 
-			atemp = (Ability *)malloc( sizeof( Ability ) * numAbil );
-			memcpy( atemp, abilityList, sizeof( Ability ) * ( numAbil - 1 ) );
+			atemp = (Ability *)malloc( sizeof( Ability ) * __numAbilities );
+			memcpy( atemp, abilityList, sizeof( Ability ) * ( __numAbilities - 1 ) );
 			abilityList = atemp;
 
-			LoadAbility( &abilityList[ numAbil - 1 ], abildefpath );
+			LoadAbility( &abilityList[ __numAbilities - 1 ], abildefpath, self );
 		}
 	}
 
@@ -142,6 +146,10 @@ Entity *InitBoss( char *filename )
 	self->damage = 0;
 	
 	self->Move = BossMove;
+	self->Think = BossThink;
+
+	cooldown = 0;
+	lock = 0;
 
 	return self;
 }
@@ -195,7 +203,6 @@ void BossMove( Entity *self )
 
 void CalculateVelocity( Entity *self )
 {
-	float ang;
 	float hypot;
 	vec2_t dist;
 
@@ -214,4 +221,68 @@ void RemovePath()
 	temp = path;
 	free( path );
 	path = temp->next;
+}
+
+
+void BossThink( Entity *self )
+{
+	UseAbilities( self );
+}
+
+
+void UseAbilities( Entity *self )
+{
+	int i;
+
+	for( i = 0; i < __numAbilities; i++ )
+	{		
+		//use abilities that are being used
+		if( abilityList[ i ].inuse )
+		{
+			UseAbility( &abilityList[ i ] );
+		}
+	}
+	
+	//use a random ability 
+	if( cooldown < NOW  )
+	{
+		i = rand() % __numAbilities;
+
+		//make sure the ability can be used 
+		if( !( abilityList[ i ].inuse || abilityList[ i ].startTime >= NOW ) )
+		{
+			cooldown = NOW + abilityList[ i ].cooldown + abilityList[ i ].duration;
+			lock = abilityList[ i ].lock;
+
+			abilityList[ i ].inuse = 1;
+			abilityList[ i ].startTime = NOW;
+
+			UseAbility( &abilityList[ i ] );
+		}
+	}
+}
+
+
+void EndAbilities()
+{
+	int i;
+
+	for( i = 0; i < sizeof( abilityList ); i++ )
+	{
+		if( abilityList[ i ].duration != -1 )
+		{
+			abilityList[ i ].inuse = 0;
+		}	
+	}
+}
+
+
+void EndAllAbilities()
+{
+	int i;
+
+	for( i = 0; i < sizeof( abilityList ); i++ )
+	{
+		abilityList[ i ].inuse = 0;
+	}
 }
