@@ -35,11 +35,26 @@ void LoadBoss( Entity *self, char *filename );
 void CalculateVelocity( Entity *self );
 
 /**
- * @brief allows the boss to use abilities
+ * @brief uses abilities that are in use and checks to see if they're done
  *
  * @param self a pointer to the boss entity
  */
-void UseAbilities( Entity *self );
+void CheckAbilities( Entity *self );
+
+/**
+ * @brief causes the boss to use a random ability from available abilities
+ *
+ * @param self a pointer to the boss entity
+ */
+void UseRandomAbility( Entity *self );
+
+/**
+ * @brief stops a specific ability
+ *
+ * @param self a pointer to the boss entity
+ * @param index the index of the ability in the abilityList
+ */
+void StopAbility( Entity *self, int index );
 
 /**
  * @brief stops all abilities that can be stopped

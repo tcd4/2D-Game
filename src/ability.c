@@ -5,11 +5,7 @@
 
 
 extern Uint32 NOW;
-
-
-void PatternPoint( Ability *ability );
-void PatternLine( Ability *ability );
-void PatternCircle( Ability *ability );
+static vec2_t offset;
 
 
 void LoadAbility( Ability *ability, char *filename, Entity *owner )
@@ -67,9 +63,16 @@ void LoadAbility( Ability *ability, char *filename, Entity *owner )
 		{
 			fscanf( abilityfile, "%i", &ability->cooldown );
 		}
+		else if( strncmp( buf, "mtype:", 128 ) == 0 )
+		{
+			fscanf( abilityfile, "%i", &ability->movement );
+		}
 	}
 
 	fclose( abilityfile );
+
+	offset[ 0 ] = owner->width / 2;
+	offset[ 1 ] = owner->height / 2;
 
 	ability->owner = owner;
 	ability->inuse = 0;
@@ -92,32 +95,28 @@ void LoadAbility( Ability *ability, char *filename, Entity *owner )
 	{
 		ability->lock = 0;
 	}
+
+	if( ability->movement == NULL )
+	{
+		ability->movement = MOVE_NO;
+	}
+
+	if( ability->path )
+	{
+		ability->movement = MOVE_PATH;
+	}
+	else
+	{
+		ability->path = NULL;
+	}
+
+	ability->endTime = 0;
 }
 
 
 void UseAbility( Ability *ability )
 {
-	if( !ability->endTime )
-	{
-		ability->endTime = NOW + ability->duration;
-	}
-	else if( ability->endTime <= NOW )
-	{
-		ability->inuse = 0;
-		ability->startTime = 0;
-		ability->endTime = 0;
-		ability->nextfire = 0;
-	}
-
-	if( ability->firerate )
-	{
-		if( ability->nextfire >= NOW )
-		{
-			return;
-		}
-
-		ability->nextfire = ability->firerate + NOW;
-	}
+	ability->nextfire = ability->firerate + NOW;
 
 	if( strncmp( ability->pattern, "point", sizeof( ability->pattern ) ) == 0 )
 	{
@@ -138,27 +137,23 @@ void PatternPoint( Ability *ability )
 {
 	int i;
 	int minang, maxang;
-	double vx, vy;
 	double ang;
+	vec2_t origin;
 	vec2_t startpos;
 	vec2_t v;
 
-	VectorAdd( ability->owner->position, ability->pos, startpos );
+	VectorAdd( ability->owner->position, offset, origin );
+	VectorAdd( origin, ability->pos, startpos );
 
 	maxang = 90 + ability->cone / 2;
 	minang = maxang - ability->cone;
 	
 	for( i = 0; i < ability->numProj; i++ )
 	{
-		ang = ( double )( rand() % ability->cone );
+		ang = rand() % ability->cone;
 		ang += minang;
-		ang = ang * ( PI / 180 );
 
-		vx = ( cos( ang ) ) * ability->velocity;
-		vy = ( sin( ang ) ) * ability->velocity;
-
-		v[ 0 ] = vx;
-		v[ 1 ] = vy;
+		VectorCopy( *CalculateProjectileVelocity( ang, ability->velocity ), v );
 
 		InitProjectile( ability->owner, ability->owner->opponent, ability->owner->projectile, startpos, v, ability->fuse, 0 );
 	}
@@ -176,4 +171,18 @@ void PatternCircle( Ability *ability )
 
 	VectorClear( startpos );
 	VectorAdd( startpos, ability->pos, startpos );
+}
+
+
+vec2_t *CalculateProjectileVelocity( int angle, int velocity )
+{
+	double angrad;
+	vec2_t v;
+
+	angrad = ( double )( angle ) * ( PI / 180 );
+
+	v[ 0 ] = ( cos( angrad ) ) * velocity;
+	v[ 1 ] = ( sin( angrad ) ) * velocity;
+
+	return &v;
 }

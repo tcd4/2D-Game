@@ -223,40 +223,76 @@ void CalculateVelocity( Entity *self )
 
 void BossThink( Entity *self )
 {
-	UseAbilities( self );
+	CheckAbilities( self );
+	UseRandomAbility( self );
 }
 
 
-void UseAbilities( Entity *self )
+void CheckAbilities( Entity *self )
 {
 	int i;
 
 	for( i = 0; i < __numAbilities; i++ )
 	{		
-		//use abilities that are being used
+		//use abilities that are being used or abilities that are supposed to start
 		if( abilityList[ i ].inuse )
+		{
+			//make sure the ability hasn't ended
+			if( ( abilityList[ i ].endTime ) && ( abilityList[ i ].endTime <= NOW ) )
+			{
+				StopAbility( self, i );
+				continue;
+			}
+
+			if( ( abilityList[ i ].nextfire ) && ( abilityList[ i ].nextfire <= NOW ) )
+			{
+				UseAbility( &abilityList[ i ] );
+			}
+		}
+		else if( ( abilityList[ i ].startTime ) && ( abilityList[ i ].startTime <= NOW ) )
 		{
 			UseAbility( &abilityList[ i ] );
 		}
 	}
-	
-	//use a random ability 
-	if( cooldown < NOW  )
+}
+
+
+void UseRandomAbility( Entity *self )
+{
+	int i;
+
+	if( ( cooldown < NOW ) && ( !lock ) )
 	{
 		i = rand() % __numAbilities;
 
 		//make sure the ability can be used 
-		if( !( abilityList[ i ].inuse || abilityList[ i ].startTime >= NOW ) )
+		if( ( !abilityList[ i ].inuse ) || ( abilityList[ i ].startTime >= NOW ) )
 		{
 			cooldown = NOW + abilityList[ i ].cooldown + abilityList[ i ].duration;
 			lock = abilityList[ i ].lock;
+			self->movetype = abilityList[ i ].movement;
+			//self->path = ClearPathing( self->path );
 
 			abilityList[ i ].inuse = 1;
 			abilityList[ i ].startTime = NOW;
-
+			if( abilityList[ i ].duration != -1 )
+			{
+				abilityList[ i ].endTime = NOW + abilityList[ i ].duration;
+			}
+		
+			//EndAbilities();
 			UseAbility( &abilityList[ i ] );
 		}
 	}
+}
+
+
+void StopAbility( Entity *self, int index )
+{
+	abilityList[ index ].inuse = 0;
+	abilityList[ index ].startTime = 0;
+	lock -= abilityList[ index ].lock;
+	self->movetype = MOVE_RANDOM;
 }
 
 
