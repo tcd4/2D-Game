@@ -137,7 +137,7 @@ Entity *InitPlayer()
 	y = screen->h - self->height;
 	self->position[ 0 ] = x;
 	self->position[ 1 ] = y;
-	self->movedir = MOVE_NO;
+	self->movetype = MOVE_NO;
 	VectorClear( self->velocity );
 
 	self->deadflag = 0;
@@ -173,24 +173,24 @@ void PlayerThink( Entity *self )
 
 void CheckInput( Entity *self )
 {
-	self->movedir = 0;
+	self->movetype = 0;
 
 	if( keys[ SDLK_w ] )
 	{
-		self->movedir |= MOVE_UP;
+		self->movetype |= MOVE_UP;
 	}
 	else if( keys[ SDLK_s ] )
 	{
-		self->movedir |= MOVE_DOWN;
+		self->movetype |= MOVE_DOWN;
 	}
 
 	if( keys[ SDLK_a ] )
 	{
-		self->movedir |= MOVE_LEFT;
+		self->movetype |= MOVE_LEFT;
 	}
 	else if( keys[ SDLK_d ] )
 	{
-		self->movedir |= MOVE_RIGHT;
+		self->movetype |= MOVE_RIGHT;
 	}
 
 	if( keys[ SDLK_SPACE ] )
@@ -217,12 +217,12 @@ void PlayerDie( Entity *self )
 
 void PlayerMove( Entity *self )
 {
-	if( !self->movedir )
+	if( !self->movetype )
 	{
 		return;
 	}
 
-	if( self->movedir & MOVE_LEFT )
+	if( self->movetype & MOVE_LEFT )
 	{
 		/* instantly go the opposite direction instead of slowing down first */
 		if( self->velocity[ 0 ] > 0 )
@@ -232,7 +232,7 @@ void PlayerMove( Entity *self )
 
 		self->velocity[ 0 ]--;
 	}
-	else if( self->movedir & MOVE_RIGHT )
+	else if( self->movetype & MOVE_RIGHT )
 	{
 		if( self->velocity[ 0 ] < 0 )
 		{
@@ -246,7 +246,7 @@ void PlayerMove( Entity *self )
 		self->velocity[ 0 ] = 0;
 	}
 
-	if( self->movedir & MOVE_UP )
+	if( self->movetype & MOVE_UP )
 	{
 		if( self->velocity[ 1 ] > 0 )
 		{
@@ -255,7 +255,7 @@ void PlayerMove( Entity *self )
 
 		self->velocity[ 1 ]--;
 	}
-	else if( self->movedir & MOVE_DOWN )
+	else if( self->movetype & MOVE_DOWN )
 	{
 		if( self->velocity[ 1 ] < 0 )
 		{

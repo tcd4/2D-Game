@@ -16,17 +16,6 @@
 #define MODE_SWITCH_CD 500
 
 
-typedef enum
-{
-	MOVE_NO			= 0,
-	MOVE_UP			= 1,
-	MOVE_DOWN		= 2,
-	MOVE_LEFT		= 4,
-	MOVE_RIGHT		= 8,
-	MOVE_TUG_OF_WAR = 15
-}Direction;
-
-
 /**
  * @brief initializes the player
  *

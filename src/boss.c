@@ -14,7 +14,6 @@ static int __moveSpeed;
 static int __numAbilities;
 Uint32 cooldown;
 int lock;
-struct Path *path;
 Ability *abilityList = NULL;
 
 
@@ -138,7 +137,8 @@ Entity *InitBoss( char *filename )
 	self->position[ 1 ] = 1;
 	__yBound = screen->w / 3;
 
-	self->movedir = MOVE_RANDOM;
+	self->movetype = MOVE_RANDOM;
+	self->path = NULL;
 	VectorClear( self->velocity );
 
 	self->deadflag = 0;
@@ -159,27 +159,33 @@ void BossMove( Entity *self )
 {
 	vec2_t check;
 
-	if( !self->movedir )
+	//make sure we can move
+	if( !self->movetype )
 	{
 		return;
 	}
 
-	if( path == NULL )
+	//check if there is a place to go
+	if( !self->path )
 	{
-		path = (struct Path *)malloc( sizeof( struct Path ) );
-
-		if( self->movedir & MOVE_RANDOM )
+		//check if we want to move
+		if( self->movetype & MOVE_RANDOM )
 		{
 			srand( NOW );
-			path->pathto[ 0 ] = rand() % ( screen->w - self->width );
-			path->pathto[ 1 ] = rand() % __yBound;
-		}
+			check[ 0 ] = rand() % ( screen->w - self->width );
+			check[ 1 ] = rand() % __yBound;
 
-		path->next = NULL;
+			AddPath( self, check );
+		}
+		else
+		{
+			return;
+		}
 	}
 
 	VectorClear( check );
 
+	//don't recalculate our velocity unless we have to
 	if( VectorCompare( self->velocity, check ) )
 	{
 		CalculateVelocity( self );
@@ -187,12 +193,13 @@ void BossMove( Entity *self )
 
 	VectorAdd( self->position, self->velocity, check );
 	
-	if( ( ( check[ 0 ] <= path->pathto[ 0 ] ) && ( path->pathto[ 0 ] <= self->position[ 0 ] ) ) || 
-		( ( check[ 0 ] >= path->pathto[ 0 ] ) && ( path->pathto[ 0 ] >= self->position[ 0 ] ) ) )
+	//don't overshoot our destination
+	if( ( ( check[ 0 ] <= self->path->pos[ 0 ] ) && ( self->path->pos[ 0 ] <= self->position[ 0 ] ) ) || 
+		( ( check[ 0 ] >= self->path->pos[ 0 ] ) && ( self->path->pos[ 0 ] >= self->position[ 0 ] ) ) )
 	{
-		VectorCopy( path->pathto, self->position );
+		VectorCopy( self->path->pos, self->position );
 		VectorClear( self->velocity );
-		RemovePath();
+		NextPosition( self );
 	}
 	else
 	{
@@ -206,21 +213,11 @@ void CalculateVelocity( Entity *self )
 	float hypot;
 	vec2_t dist;
 
-	VectorSubtract( path->pathto, self->position, dist );
+	VectorSubtract( self->path->pos, self->position, dist );
 	hypot = sqrt( pow( dist[ 0 ], 2 ) + pow( dist[ 1 ], 2 ) );
 
 	self->velocity[ 0 ] = __moveSpeed * ( dist[ 0 ] / hypot );
 	self->velocity[ 1 ] = __moveSpeed * ( dist[ 1 ] / hypot );
-}
-
-
-void RemovePath()
-{
-	struct Path *temp;
-
-	temp = path;
-	free( path );
-	path = temp->next;
 }
 
 
@@ -267,7 +264,7 @@ void EndAbilities()
 {
 	int i;
 
-	for( i = 0; i < sizeof( abilityList ); i++ )
+	for( i = 0; i < __numAbilities; i++ )
 	{
 		if( abilityList[ i ].duration != -1 )
 		{
@@ -281,7 +278,7 @@ void EndAllAbilities()
 {
 	int i;
 
-	for( i = 0; i < sizeof( abilityList ); i++ )
+	for( i = 0; i < __numAbilities; i++ )
 	{
 		abilityList[ i ].inuse = 0;
 	}
