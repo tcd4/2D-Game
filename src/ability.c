@@ -13,6 +13,10 @@ void LoadAbility( Ability *ability, char *filename, Entity *owner )
 	FILE *abilityfile = NULL;
 	char buf[ 128 ];
 	char pat[ 128 ];
+	vec2_t postemp;
+	vec2_t *plisttemp;
+	
+	ability->pos = NULL;
 
 	abilityfile = fopen( filename, "r" );
 	if( abilityfile == NULL )
@@ -37,7 +41,15 @@ void LoadAbility( Ability *ability, char *filename, Entity *owner )
 		}
 		else if( strncmp( buf, "pos:", 128 ) == 0 )
 		{
-			fscanf( abilityfile, "%f,%f", &ability->pos[ 0 ], &ability->pos[ 1 ] );
+			fscanf( abilityfile, "%f,%f", &postemp[ 0 ], &postemp[ 1 ] );
+
+			ability->numpos++;
+
+			plisttemp = ( vec2_t * )malloc( sizeof( vec2_t ) * ability->numpos );
+			memcpy( plisttemp, ability->pos, sizeof( vec2_t ) * ( ability->numpos - 1 ) );
+			ability->pos = plisttemp;
+
+			VectorCopy( postemp, ability->pos[ ability->numpos - 1 ] );
 		}
 		else if( strncmp( buf, "radius:", 128 ) == 0 )
 		{
@@ -135,7 +147,7 @@ void UseAbility( Ability *ability )
 
 void PatternPoint( Ability *ability )
 {
-	int i;
+	int i, j;
 	int minang, maxang;
 	double ang;
 	vec2_t origin;
@@ -143,19 +155,23 @@ void PatternPoint( Ability *ability )
 	vec2_t v;
 
 	VectorAdd( ability->owner->position, offset, origin );
-	VectorAdd( origin, ability->pos, startpos );
 
 	maxang = 90 + ability->cone / 2;
 	minang = maxang - ability->cone;
-	
-	for( i = 0; i < ability->numProj; i++ )
+
+	for( j = 0; j < ability->numpos; j++ )
 	{
-		ang = rand() % ability->cone;
-		ang += minang;
+		VectorAdd( origin, ability->pos[ j ], startpos );
 
-		VectorCopy( *CalculateProjectileVelocity( ang, ability->velocity ), v );
+		for( i = 0; i < ability->numProj; i++ )
+		{
+			ang = rand() % ability->cone;
+			ang += minang;
 
-		InitProjectile( ability->owner, ability->owner->opponent, ability->owner->projectile, startpos, v, ability->fuse, 0 );
+			VectorCopy( *CalculateProjectileVelocity( ang, ability->velocity ), v );
+
+			InitProjectile( ability->owner, ability->owner->opponent, ability->owner->projectile, startpos, v, ability->fuse, 0 );
+		}
 	}
 }
 
@@ -167,10 +183,6 @@ void PatternLine( Ability *ability )
 
 void PatternCircle( Ability *ability )
 {
-	vec2_t startpos;
-
-	VectorClear( startpos );
-	VectorAdd( startpos, ability->pos, startpos );
 }
 
 

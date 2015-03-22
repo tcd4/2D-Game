@@ -24,7 +24,9 @@ typedef struct ability_s
 	int				cone;		/**< the angle the projectiles are fired within */
 	int				velocity;	/**< the velocity of the projectiles */
 	int				radius;		/**< the radius of the pattern */
-	vec2_t			pos;		/**< the position projectiles are fired from relative to the owner */
+
+	vec2_t			*pos;		/**< the position projectiles are fired from relative to the owner */
+	int				numpos;		/**< the number of positions */
 
 	Uint32			duration;	/**< the duration of the ability */
 	Uint32			startTime;	/**< when the ability begins */

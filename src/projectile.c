@@ -94,22 +94,17 @@ void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos
 	if( fuse )
 	{
 		self->nextthink = NOW + fuse;
-		self->Think = FreeEnt;
 	}
+	else
+	{
+		self->nextthink = NOW + 5000;
+	}
+
+	self->Think = FreeEnt;
 }
 
 
 void ProjectileMove( Entity *self )
 {
 	VectorAdd( self->position, self->velocity, self->position );
-
-	/*if there's no life timer, kill the projectile as soon as it leaves the screen*/
-	if( !self->nextthink )
-	{
-		if( ( self->position[ 0 ] > screen->w ) || ( self->position[ 0 ] + self->width < 0 ) ||
-			( self->position[ 1 ] > screen->h ) || ( self->position[ 1 ] - self->height < 0 ) )
-		{
-			FreeEnt( self );
-		}
-	}
 }
