@@ -1,14 +1,16 @@
 #include "path.h"
 
 
-void AddPath( struct entity_s *ent, vec2_t point )
+struct path_s *AddPath( struct path_s *path, vec2_t point )
 {
 	struct path_s *temp;
 
 	temp = ( struct path_s * )malloc( sizeof( struct path_s ) );
 	VectorCopy( point, temp->pos );
-	temp->next = ent->path;
-	ent->path = temp;
+	temp->next = path;
+	path = temp;
+
+	return path;
 }
 
 

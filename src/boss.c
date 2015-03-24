@@ -175,7 +175,7 @@ void BossMove( Entity *self )
 			check[ 0 ] = rand() % ( screen->w - self->width );
 			check[ 1 ] = rand() % __yBound;
 
-			AddPath( self, check );
+			self->path = AddPath( self->path, check );
 		}
 		else
 		{

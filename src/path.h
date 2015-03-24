@@ -56,9 +56,11 @@ struct path_s *ClearPathing( struct path_s *path );
 /**
  * @brief adds a node to the path
  *
- * @param ent a pointer to the entity whose pathing will be updated
+ * @param ent a pointer to the path to add to
+ * 
+ * @return returns a pointer to the updated path
  */
-void AddPath( struct entity_s *ent, vec2_t point );
+struct path_s *AddPath( struct path_s *path, vec2_t point );
 
 
 #endif
