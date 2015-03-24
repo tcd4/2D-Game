@@ -1,0 +1,11 @@
+pattern: point
+numProj: 10
+pos: 0,0
+pos: 100,-50
+pos: -100,-50
+v: 5
+angle: 80
+rate: 1000
+dur: 5000
+cd: 5000
+

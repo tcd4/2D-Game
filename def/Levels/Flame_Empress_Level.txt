@@ -1,0 +1,2 @@
+sprite: images/Flame_Empress_bg.png
+boss: def/Bosses/Flame_Empress/Flame_Empress.txt
