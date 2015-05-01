@@ -12,6 +12,7 @@ extern SDL_Surface *screen;
 static int __numModes = 0;
 static int __curMode = 0;
 static Uint32 __canModeSwitch = 0;
+static float __maxVelocity = 7.500;
 //Mode *modeList = NULL;
 
 
@@ -120,8 +121,7 @@ Entity *InitPlayer( char *filename )
 
 	self->numActors = 0;
 	self->deadflag = 0;
-	self->thinkrate = 0;
-	self->nextthink = 0;
+	self->thinkrate = 2;
 	self->state = 0;
 
 	if( !LoadPlayer( self, filename ) )
@@ -152,9 +152,9 @@ Entity *InitPlayer( char *filename )
 
 
 void PlayerThink( Entity *self )
-{/*
+{
 	CheckInput( self );
-
+	/*
 	if( modeList[ __curMode ].nextFire <= NOW )
 	{
 		Fire( self, &modeList[ __curMode ] );
@@ -165,27 +165,28 @@ void PlayerThink( Entity *self )
 
 
 void CheckInput( Entity *self )
-{/*
-	self->movetype = 0;
+{	
+	Vec2Clear( self->velocity );
 
 	if( keys[ SDLK_w ] )
 	{
-		self->movetype |= MOVE_UP;
+		self->velocity[ 1 ] = -__maxVelocity;
 	}
 	else if( keys[ SDLK_s ] )
 	{
-		self->movetype |= MOVE_DOWN;
+		self->velocity[ 1 ] = __maxVelocity;
 	}
 
 	if( keys[ SDLK_a ] )
 	{
-		self->movetype |= MOVE_LEFT;
+		self->velocity[ 0 ] = -__maxVelocity;
 	}
 	else if( keys[ SDLK_d ] )
 	{
-		self->movetype |= MOVE_RIGHT;
+		self->velocity[ 0 ] = __maxVelocity;
 	}
-
+	
+	/*
 	if( keys[ SDLK_SPACE ] )
 	{
 		if( __canModeSwitch <= NOW )
@@ -209,81 +210,7 @@ void PlayerDie( Entity *self )
 
 
 void PlayerMove( Entity *self )
-{/*
-	if( !self->movetype )
-	{
-		return;
-	}
-
-	if( self->movetype & MOVE_LEFT )
-	{
-		
-		if( self->velocity[ 0 ] > 0 )
-		{
-			self->velocity[ 0 ] = 0;
-		}
-
-		self->velocity[ 0 ]--;
-	}
-	else if( self->movetype & MOVE_RIGHT )
-	{
-		if( self->velocity[ 0 ] < 0 )
-		{
-			self->velocity[ 0 ] = 0;
-		}
-
-		self->velocity[ 0 ]++;
-	}
-	else
-	{
-		self->velocity[ 0 ] = 0;
-	}
-
-	if( self->movetype & MOVE_UP )
-	{
-		if( self->velocity[ 1 ] > 0 )
-		{
-			self->velocity[ 1 ] = 0;
-		}
-
-		self->velocity[ 1 ]--;
-	}
-	else if( self->movetype & MOVE_DOWN )
-	{
-		if( self->velocity[ 1 ] < 0 )
-		{
-			self->velocity[ 1 ] = 0;
-		}
-
-		self->velocity[ 1 ]++;
-	}
-	else
-	{
-		self->velocity[ 1 ] = 0;
-	}
-	
-	
-	if( self->velocity[ 0 ] > MAX_VELOCITY )
-	{
-		self->velocity[ 0 ] = MAX_VELOCITY;
-	}
-	else if( self->velocity[ 0 ] < -MAX_VELOCITY )
-	{
-		self->velocity[ 0 ] = -MAX_VELOCITY;
-	}
-
-	if( self->velocity[ 1 ] > MAX_VELOCITY )
-	{
-		self->velocity[ 1 ] = MAX_VELOCITY;
-	}
-	else if( self->velocity[ 1 ] < -MAX_VELOCITY )
-	{
-		self->velocity[ 1 ] = -MAX_VELOCITY;
-	}
-	
-	Vec2Add( self->velocity, self->position, self->position );
-
-
+{
 	if( self->position[ 0 ] < 0 )
 	{
 		self->position[ 0 ] = 0;
@@ -301,7 +228,6 @@ void PlayerMove( Entity *self )
 	{
 		self->position[ 1 ] = screen->h - self->h;
 	}
-	*/
 }
 
 

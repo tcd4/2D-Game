@@ -33,7 +33,7 @@ typedef vec_t vec4_t[ 4 ];
 #define Vec2Copy( a, b )		( b[ 0 ] = a[ 0 ], b[ 1 ] = a[ 1 ] )
 #define Vec2Clear( a )			( a[ 0 ] = 0, a[ 1 ] = 0 )
 #define Vec2Compare( a, b )		( ( a[ 0 ] == b[ 0 ] && a[ 1 ] == b[ 1 ] ) ? 1: 0 )
-#define Vec2Zeroed( a )			( ( a[ 0 ] == a[ 1 ] == 0 ) ? 1: 0 )
+#define Vec2Zeroed( a )			( ( a[ 0 ] == 0 && a[ 1 ] == 0 ) ? 1: 0 )
 
 #define Vec3Subtract( a, b, c )	( Vec2Subtract( a, b, c ), c[ 2 ] = a[ 2 ] - b[ 2 ] )
 #define Vec3Add( a, b, c )		( Vec2Add( a, b, c ), c[ 2 ] = a[ 2 ] + b[ 2 ] )

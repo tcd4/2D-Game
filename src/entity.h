@@ -36,16 +36,16 @@ typedef struct entity_s
 	int				collision;				/**< determines if the entity has collision */
 	vec4_t			bbox;					/**< bounding box for the entity */
 	vec2_t			offset;					/**< bounding box offset */
-
+	vec2_t			speed;					/**< velocity of the entity cause I don't know why my velocity wasn't working */
+	vec2_t			velocity;				
 	vec2_t			position;				/**< position of the entity */
+	
 	Uint32			movetype;				/**< move direction of the entity */
-	vec2_t			velocity;				/**< velocity of the entity */
-
+	
 	int				visible;				/**< determines if the entity can be seen or not */
 	int				deadflag;				/**< determines if the entity has died */
 
 	Uint32			thinkrate;				/**< determines how often the entity thinks */
-	Uint32			nextthink;				/**< determines when the entity will think next */
 
 	void			( *Draw )( struct entity_s *self );								/**< pointer to the entity's draw function */
 	void			( *Free )( struct entity_s *self );								/**< pointer to the entity's free function */
@@ -111,5 +111,16 @@ void UpdateEnts();
  */
 void ChangeState( Entity *ent );
 
+/**
+ * @brief moves the entities in the world
+ */
+void MoveEnts();
+
+/**
+ * @brief moves a single entity in the world
+ *
+ * @param ent the entity that is moving
+ */
+void MoveEnt( Entity *ent );
 
 #endif

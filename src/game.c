@@ -33,15 +33,18 @@ int main( int argc, char *argv[] )
 	done = 0;
 	do
 	{
-		ResetBuffer ();
+		ResetBuffer();
+
+		keys = SDL_GetKeyState( &keyn );
 
 		Draw();
 
-		//UpdateEnts();
+		MoveEnts();
+		UpdateEnts();
 
 		NextFrame();
 		SDL_PumpEvents();
-		keys = SDL_GetKeyState( &keyn );
+		
 		if( keys[ SDLK_ESCAPE ] )
 		{
 			done = 1;

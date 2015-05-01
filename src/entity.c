@@ -5,6 +5,7 @@ extern SDL_Surface *screen;
 extern SDL_Event Event;
 extern SDL_Rect Camera;
 extern Uint32 NOW;
+extern Uint32 FRAME;
 
 
 static Entity * __entList = NULL;
@@ -104,32 +105,6 @@ Entity *NewEnt()
 }
 
 
-void UpdateEnts()
-{
-	int i;
-
-	for( i = 0; i < MAX_ENTITIES; i++ )
-	{
-		if( __entList[ i ].inuse )
-		{
-			if( __entList[ i ].Move != NULL )
-			{
-				__entList[ i ].Move( &__entList[ i ] );
-			}
-
-			if( __entList[ i ].Think != NULL )
-			{
-				if( __entList[ i ].nextthink <= NOW )
-				{
-					__entList[ i ].Think( &__entList[ i ] );
-					__entList[ i ].nextthink = NOW + __entList[ i ].thinkrate;
-				}
-			}		
-		}
-	}
-}
-
-
 void DrawEntList()
 {
 	int i;
@@ -159,3 +134,54 @@ void DrawEnt( Entity *ent )
 		DrawSprite( ent->sprite, screen, ent->position[ 0 ], ent->position[ 1 ], 0 );
 	}
 }
+
+
+void UpdateEnts()
+{
+	int i;
+
+	for( i = 0; i < MAX_ENTITIES; i++ )
+	{
+		if( __entList[ i ].inuse )
+		{
+			if( ( __entList[ i ].Think ) && ( !( FRAME % __entList[ i ].thinkrate ) ) )
+			{
+				__entList[ i ].Think( &__entList[ i ] );
+			}		
+		}
+	}
+}
+
+
+void MoveEnts()
+{
+	int i;
+
+	for( i = 0; i < MAX_ENTITIES; i++ )
+	{
+		if( __entList[ i ].inuse )
+		{
+			if( !( Vec2Zeroed( __entList[ i ].velocity ) ) )
+			{
+				MoveEnt( &__entList[ i ] );
+
+				if( __entList[ i ].Move )
+				{
+					__entList[ i ].Move( &__entList[ i ] );
+				}
+			}
+		}
+	}
+}
+
+
+void MoveEnt( Entity *ent )
+{
+	Vec2Add( ent->position, ent->velocity, ent->position );
+}
+
+
+
+
+
+
