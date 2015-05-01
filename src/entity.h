@@ -11,47 +11,45 @@
 #include "sprites.h"
 #include "types.h"
 #include "path.h"
+#include "actor.h"
 
 
 #define MAX_ENTITIES	4096
+#define MAX_ACTORS		10
 
 
 typedef struct entity_s
 {
-	int				inuse;			/**< determines if the entities is in use */
+	int				inuse;					/**< determines if the entities is in use */
 
-	char			*classname;		/**< name of the entity type */
+	char			name[ TYPE_NAME_LEN ];	/**< name of the entity type */
 
-	struct entity_s *self;			/**< pointer to itself */
-	struct entity_s	*owner;			/**< pointer to the entity that owns this one */
+	struct entity_s *self;					/**< pointer to itself */
+	struct entity_s	*owner;					/**< pointer to the entity that owns this one */
 
-	Sprite			*sprite;		/**< pointer to the entity's sprite */
-	int				frame;			/**< frame the entity's sprite is on */
-	int				numFrames;		/**< number of frames in a row of a sprite sheet */
-	int				frameDelay;		/**< how long to wait until we draw the next frame */
-	Uint32			drawNextFrame;	/**< the time to move to the next frame */
-	int				width, height;	/**< width and height of the sprite */
+	Sprite			*sprite;				/**< pointer to the entity's sprite */
+	Actor			*actors[ MAX_ACTORS ];	/**< actors for the entity */
+	int				numActors;				/**< the number of actors an entity has */
+	int				w, h;					/**< width and height of the sprite */
 
-	Sprite			*projectile;	/**< pointer to the entity's projectile sprite */
+	Sprite			*projectile;			/**< pointer to the entity's projectile sprite */
 
-	int				collision;		/**< determines if the entity has collision */
-	struct entity_s *opponent;		/**< pointer to entities this entity can collide with */
-	SDL_Rect		bbox;			/**< bounding box for the entity */
+	int				collision;				/**< determines if the entity has collision */
+	vec4_t			bbox;					/**< bounding box for the entity */
+	vec2_t			offset;					/**< bounding box offset */
 
-	vec2_t			position;		/**< position of the entity */
-	Uint32			movetype;		/**< move direction of the entity */
-	vec2_t			velocity;		/**< velocity of the entity */
-	struct path_s	*path;			/**< path an entity will follow */
+	vec2_t			position;				/**< position of the entity */
+	Uint32			movetype;				/**< move direction of the entity */
+	vec2_t			velocity;				/**< velocity of the entity */
 
-	int				visible;		/**< determines if the entity can be seen or not */
-	int				deadflag;		/**< determines if the entity has died */
+	int				visible;				/**< determines if the entity can be seen or not */
+	int				deadflag;				/**< determines if the entity has died */
 
-	int				health;			/**< amount of damage the entity can take */
-	int				damage;			/**< amount of damage the entity deals to the opponent */
+	Uint32			thinkrate;				/**< determines how often the entity thinks */
+	Uint32			nextthink;				/**< determines when the entity will think next */
 
-	Uint32			thinkrate;		/**< determines how often the entity thinks */
-	Uint32			nextthink;		/**< determines when the entity will think next */
-
+	void			( *Draw )( struct entity_s *self );								/**< pointer to the entity's draw function */
+	void			( *Free )( struct entity_s *self );								/**< pointer to the entity's free function */
 	void			( *Think )( struct entity_s *self );							/**< pointer to the entity's think function */
 	void			( *Touch )( struct entity_s *self, struct entity_s *other );	/**< pointer to the entity's collision function */
 	void			( *Die )( struct entity_s *self );								/**< pointer to the entity's death function */
@@ -62,7 +60,7 @@ typedef struct entity_s
 /**
  * @brief initializes all the entities to nothing
  */
-void InitEntList();
+void InitEntitySystem();
 
 /**
  * @brief initializes new entities

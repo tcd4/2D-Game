@@ -71,6 +71,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\ability.c" />
+    <ClCompile Include="src\actor.c" />
     <ClCompile Include="src\audio.c" />
     <ClCompile Include="src\boss.c" />
     <ClCompile Include="src\entity.c" />
@@ -86,6 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ability.h" />
+    <ClInclude Include="src\actor.h" />
     <ClInclude Include="src\audio.h" />
     <ClInclude Include="src\boss.h" />
     <ClInclude Include="src\entity.h" />

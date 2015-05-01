@@ -54,6 +54,9 @@
     <ClCompile Include="src\path.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\actor.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\audio.h">
@@ -93,6 +96,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\actor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

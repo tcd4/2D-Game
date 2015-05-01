@@ -102,10 +102,10 @@ void Fire( Entity *ent, Mode *mode )
 	int i;
 
 	Vec2Copy( ent->position, mode->origin );
-	mode->origin[ 0 ] += ( ent->width / 2 );
+	mode->origin[ 0 ] += ( ent->w / 2 );
 
 	for( i = 0; i < mode->numProj; i++ )
 	{
-		InitProjectile( ent, ent->opponent, ent->projectile, mode->origin, mode->velocities[ i ], mode->fuse, mode->damage );
+		//InitProjectile( ent, ent->opponent, ent->projectile, mode->origin, mode->velocities[ i ], mode->fuse, mode->damage );
 	}
 }

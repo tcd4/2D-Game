@@ -1,13 +1,15 @@
+name: Marisa
+
+size: 35,33
 sprite: images/Characters/Marisa/Marisa.png
-height: 35
-width: 33
+bbox: 0,0
+offset: 0,0
+actor: hi
 
-columns: 8
-delay: 60
+projectile: hi
 
-proj: def/Characters/Marisa/Marisa_projectile.txt
-damage: 10
+mode: hi
+mode: hi
 
-mode: def/Characters/Marisa/Marisa_mode_wide.txt
-mode: def/Characters/Marisa/Marisa_mode_narrow.txt
+
 

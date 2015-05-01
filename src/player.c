@@ -1,8 +1,7 @@
-#include "player.h"
-#include "firingmode.h"
-#include "projectile.h"
 #include <string.h>
 #include <stdio.h>
+#include "player.h"
+#include "projectile.h"
 
 
 extern Uint32 NOW;
@@ -13,17 +12,93 @@ extern SDL_Surface *screen;
 static int __numModes = 0;
 static int __curMode = 0;
 static Uint32 __canModeSwitch = 0;
-Mode *modeList = NULL;
+//Mode *modeList = NULL;
 
 
 void PlayerThink( Entity *self );
 void PlayerTouch( Entity *self, Entity *other );
 void PlayerDie( Entity *self );
 void PlayerMove( Entity *self );
+void PlayerDraw( Entity *self );
+void PlayerFree( Entity *self );
 
 
-void LoadPlayer( Entity *self, char *filename )
+int LoadPlayer( Entity *self, char *filename )
 {
+	FILE *file = NULL;
+	char buf[ 128 ];
+	char path[ FILE_PATH_LEN ];
+	Sprite *temp;
+
+	file = fopen( filename, "r" );
+	if( !file )
+	{
+		fprintf( stderr, "ERROR: LoadPlayer: could not open file: %s\n", filename );
+		return 0;
+	}
+	
+	while( fscanf( file, "%s", buf ) != EOF )
+	{
+		if( buf[ 0 ] == '#' )
+		{
+			fgets( buf, sizeof( buf ), file );
+		}
+		else if( strncmp( buf, "name:", 128 ) == 0 )
+		{
+			fscanf( file, "%s", self->name );
+		}
+		else if( strncmp( buf, "sprite:", 128 ) == 0 )
+		{
+			fscanf( file, "%s", path );
+
+			temp = LoadSprite( path, self->w, self->h );
+			if( temp )
+			{
+				self->sprite = temp;
+			}
+			else
+			{
+				fprintf( stderr, "ERROR: LoadPlayer: could not open character sprite\n" );
+			}
+		}
+		else if( strncmp( buf, "size:", 128 ) == 0 )
+		{
+			fscanf( file, "%i,%i", &self->w, &self->h );		
+		}
+		else if( strncmp( buf, "bbox:", 128 ) == 0 )
+		{
+			fscanf( file, "%i,%i", &self->bbox[ 3 ], &self->bbox[ 4 ] );
+		}
+		else if( strncmp( buf, "offset:", 128 ) == 0 )
+		{
+			fscanf( file, "%i,%i", &self->offset[ 0 ], &self->offset[ 1 ] );
+		}
+		else if( strncmp( buf, "actor:", 128 ) == 0 )
+		{
+			fscanf( file, "%s", path );
+	
+			if( self->numActors + 1 >= MAX_ACTORS )
+			{
+				self->numActors++;
+				//self->actors[ self->numActors ] = NewActor();
+			}
+		}
+		else if( strncmp( buf, "projectile:", 128 ) == 0 )
+		{
+			fscanf( file, "%s", path );
+			//LoadProjectile( self, path );
+		}
+		else if( strncmp( buf, "mode:", 128 ) == 0 )
+		{
+			fscanf( file, "%s", path );
+			//LoadFiringMode( self, path );
+		}	
+	}
+
+	fclose( file );
+
+
+	/*
 	FILE *charfile = NULL;
 	char buf[ 128 ];
 	char charimagepath[ 128 ];
@@ -103,63 +178,62 @@ void LoadPlayer( Entity *self, char *filename )
 	LoadProjectile( self, projdefpath );
 
 	self->sprite = stemp;
-	self->width = w;
-	self->height = h;
-	self->numFrames = col;
-	self->frameDelay = delay;
-	self->damage = dmg;
+	self->w = w;
+	self->h = h;
+	*/
+	fprintf( stdout, "LoadPlayer: player loaded\n" );
 }
 
 
-Entity *InitPlayer()
+Entity *InitPlayer( char *filename )
 {
 	Entity *self = NULL;
-	float x, y;
 
 	self = NewEnt();
 	if( self == NULL )
 	{
-		fprintf( stderr, "InitPlayer: ERROR, could not make a player entity:\n" );
-		exit( -1 );
+		fprintf( stderr, "InitPlayer: FATAL: could not load player\n" );
 	}
 
-	self->classname = "player";
-	self->self = self;
-	self->owner = NULL;
-	self->opponent = NULL;
-
-	LoadPlayer( self, "def/Characters/Marisa/Marisa.txt" );
-	self->frame = 0;
-	self->drawNextFrame = NOW + self->frameDelay;
-	self->visible = 1;
-
-	x = ( screen->w / 2 ) - ( self->width / 2 );
-	y = screen->h - self->height;
-	self->position[ 0 ] = x;
-	self->position[ 1 ] = y;
-	self->movetype = MOVE_NO;
+	Vec2Clear( self->position );
 	Vec2Clear( self->velocity );
+	Vec4Clear( self->bbox );
+	Vec2Clear( self->offset );
 
+	self->numActors = 0;
 	self->deadflag = 0;
-	
-	self->damage = 0;
+	self->thinkrate = 0;
+	self->nextthink = 0;
 
-	self->thinkrate = 50;
-	self->nextthink = NOW + self->thinkrate;
-	
+	if( !LoadPlayer( self, filename ) )
+	{
+		FreeEnt( self );
+		return NULL;
+	}
+
+	self->Draw = PlayerDraw;
 	self->Think = PlayerThink;
 	self->Touch = PlayerTouch;
 	self->Die = PlayerDie;
 	self->Move = PlayerMove;
-	
-	__canModeSwitch = NOW;
+	self->Free = PlayerFree;
 
+	self->owner = NULL;
+	self->self = self;
+
+	self->position[ 0 ] = ( screen->w / 2 ) - ( self->w / 2 );
+	self->position[ 1 ] = screen->h - self->h;
+
+	self->visible = 0;
+	self->inuse = 1;
+
+	fprintf( stdout, "InitPlayer: player initialized\n" );
 	return self;
 }
 
 
 void PlayerThink( Entity *self )
-{
+{/*
 	CheckInput( self );
 
 	if( modeList[ __curMode ].nextFire <= NOW )
@@ -167,12 +241,12 @@ void PlayerThink( Entity *self )
 		Fire( self, &modeList[ __curMode ] );
 
 		modeList[ __curMode ].nextFire = NOW + modeList[ __curMode ].fireRate;
-	}
+	}*/
 }
 
 
 void CheckInput( Entity *self )
-{
+{/*
 	self->movetype = 0;
 
 	if( keys[ SDLK_w ] )
@@ -197,11 +271,11 @@ void CheckInput( Entity *self )
 	{
 		if( __canModeSwitch <= NOW )
 		{
-			__canModeSwitch = NOW + MODE_SWITCH_CD;
+			//__canModeSwitch = NOW + MODE_SWITCH_CD;
 
-			__curMode = ( __curMode + 1 ) % __numModes;		
+			//__curMode = ( __curMode + 1 ) % __numModes;		
 		}
-	}
+	}*/
 }
 
 
@@ -216,7 +290,7 @@ void PlayerDie( Entity *self )
 
 
 void PlayerMove( Entity *self )
-{
+{/*
 	if( !self->movetype )
 	{
 		return;
@@ -224,7 +298,7 @@ void PlayerMove( Entity *self )
 
 	if( self->movetype & MOVE_LEFT )
 	{
-		/* instantly go the opposite direction instead of slowing down first */
+		
 		if( self->velocity[ 0 ] > 0 )
 		{
 			self->velocity[ 0 ] = 0;
@@ -269,7 +343,7 @@ void PlayerMove( Entity *self )
 		self->velocity[ 1 ] = 0;
 	}
 	
-	/* make sure to not go to fast in any direction */
+	
 	if( self->velocity[ 0 ] > MAX_VELOCITY )
 	{
 		self->velocity[ 0 ] = MAX_VELOCITY;
@@ -290,22 +364,49 @@ void PlayerMove( Entity *self )
 	
 	Vec2Add( self->velocity, self->position, self->position );
 
-	/* make sure we stay on the screen */
+
 	if( self->position[ 0 ] < 0 )
 	{
 		self->position[ 0 ] = 0;
 	}
-	else if( (self->position[ 0 ] + self->width ) > screen->w )
+	else if( (self->position[ 0 ] + self->w ) > screen->w )
 	{
-		self->position[ 0 ] = screen->w - self->width;
+		self->position[ 0 ] = screen->w - self->w;
 	}
 
 	if( self->position[ 1 ] < 0 )
 	{
 		self->position[ 1 ] = 0;
 	}
-	else if( (self->position[ 1 ] + self->height ) > screen->h )
+	else if( (self->position[ 1 ] + self->h ) > screen->h )
 	{
-		self->position[ 1 ] = screen->h - self->height;
+		self->position[ 1 ] = screen->h - self->h;
 	}
+	*/
+}
+
+
+void PlayerFree( Entity *self )
+{
+	if( self->sprite )
+	{
+		FreeSprite( self->sprite );
+	}
+
+	if( self->projectile )
+	{
+		FreeSprite( self->projectile );
+	}
+}
+
+
+void PlayerDraw( Entity *self )
+{
+	if( !self->sprite )
+	{
+		return;
+	}
+	fprintf( stdout, "\nx = %f: y = %f\n", self->position[ 0 ], self->position[ 1 ] );
+
+	DrawSprite( self->sprite, screen, self->position[ 0 ], self->position[ 1 ], 0 );
 }

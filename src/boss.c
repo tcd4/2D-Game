@@ -54,23 +54,11 @@ void LoadBoss( Entity *self, char *filename )
 		}
 		else if( strncmp( buf, "height:", 128 ) == 0 )
 		{
-			fscanf( bossfile, "%i", &self->height );
+			fscanf( bossfile, "%i", &self->h );
 		}
 		else if( strncmp( buf, "width:", 128 ) == 0 )
 		{
-			fscanf( bossfile, "%i", &self->width );
-		}
-		else if( strncmp( buf, "columns:", 128 ) == 0 )
-		{
-			fscanf( bossfile, "%i", &self->numFrames );
-		}
-		else if( strncmp( buf, "delay:", 128 ) == 0 )
-		{
-			fscanf( bossfile, "%i", &self->frameDelay );
-		}
-		else if( strncmp( buf, "health:", 128 ) == 0 )
-		{
-			fscanf( bossfile, "%i", &self->health );
+			fscanf( bossfile, "%i", &self->w );
 		}
 		else if( strncmp( buf, "proj:", 128 ) == 0 )
 		{
@@ -96,7 +84,7 @@ void LoadBoss( Entity *self, char *filename )
 
 	fclose( bossfile );
 
-	stemp = LoadSprite( bossimagepath, self->width, self->height );
+	stemp = LoadSprite( bossimagepath, self->w, self->h );
 	if( !stemp )
 	{
 		fprintf( stderr, "LoadBoss: FATAL: could not open sprite file: %s\n", bossimagepath );
@@ -121,29 +109,24 @@ Entity *InitBoss( char *filename )
 		exit( -1 );
 	}
 
-	self->classname = "boss";
+	//self->name = "boss";
 	self->self = self;
 	self->owner = NULL;
-	self->opponent = NULL;
 
 	LoadBoss( self, filename );
 
-	self->frame = 0;
-	self->drawNextFrame = NOW + self->frameDelay;
 	self->visible = 1;
 
-	x = ( screen->w / 2 ) - ( self->width / 2 );
+	x = ( screen->w / 2 ) - ( self->w / 2 );
 	self->position[ 0 ] = x;
 	self->position[ 1 ] = 1;
 	__yBound = screen->w / 3;
 
 	self->movetype = MOVE_RANDOM;
-	self->path = NULL;
+
 	Vec2Clear( self->velocity );
 
 	self->deadflag = 0;
-	
-	self->damage = 0;
 	
 	self->Move = BossMove;
 	self->Think = BossThink;
@@ -156,7 +139,7 @@ Entity *InitBoss( char *filename )
 
 
 void BossMove( Entity *self )
-{
+{/*
 	vec2_t check;
 
 	//make sure we can move
@@ -204,7 +187,7 @@ void BossMove( Entity *self )
 	else
 	{
 		Vec2Copy( check, self->position );
-	}
+	}*/
 }
 
 
@@ -213,7 +196,7 @@ void CalculateVelocity( Entity *self )
 	float hypot;
 	vec2_t dist;
 
-	Vec2Subtract( self->path->pos, self->position, dist );
+	//Vec2Subtract( self->path->pos, self->position, dist );
 	hypot = sqrt( pow( dist[ 0 ], 2 ) + pow( dist[ 1 ], 2 ) );
 
 	self->velocity[ 0 ] = __moveSpeed * ( dist[ 0 ] / hypot );

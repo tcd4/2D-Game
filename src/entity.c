@@ -11,7 +11,7 @@ static Entity * __entList = NULL;
 int	numEnts;
 
 
-void InitEntList()
+void InitEntitySystem()
 {
 	numEnts = 0;
 
@@ -19,11 +19,12 @@ void InitEntList()
 
     if ( __entList == NULL )
     {
-        fprintf( stderr, "Init__entList: FATAL: cannot allocate entity list\n" );
+        fprintf( stderr, "FATAL: InitEntntList: cannot allocate entity list\n" );
         exit( -1 );
     }
 
 	memset( __entList, 0, sizeof( Entity ) * MAX_ENTITIES );
+	fprintf( stdout, "InitEntList: initialized\n" );
 }
 
 
@@ -38,6 +39,8 @@ void FreeEntList()
 			FreeEnt( &__entList[ i ] );
 		}
 	}
+
+	fprintf( stdout, "FreeEntList: all entities freed" );
 }
 
 
@@ -61,7 +64,17 @@ void FreeEnt( Entity *ent )
 
 	ent->inuse = 0;
 
-	memset( ent, 0, sizeof( Entity ) );
+	if( ent->Free )
+	{
+		ent->Free( ent );
+	}
+
+	ent->Draw = NULL;
+	ent->Free = NULL;
+	ent->Think = NULL;
+	ent->Touch = NULL;
+	ent->Die = NULL;
+	ent->Move = NULL;
 }
 
 
@@ -71,6 +84,7 @@ Entity *NewEnt()
 
 	if( numEnts + 1 >= MAX_ENTITIES )
 	{
+		fprintf( stderr, "ERROR: NewEnt: hit entity cap\n" );
 		return NULL;
 	}
 
@@ -85,7 +99,7 @@ Entity *NewEnt()
 		}
 	}
 
-	fprintf( stderr, "hit entity cap\n" );
+	fprintf( stderr, "ERROR: NewEnt: all entities are in use\n" );
 	return NULL;
 }
 
@@ -98,6 +112,11 @@ void UpdateEnts()
 	{
 		if( __entList[ i ].inuse )
 		{
+			if( __entList[ i ].Move != NULL )
+			{
+				__entList[ i ].Move( &__entList[ i ] );
+			}
+
 			if( __entList[ i ].Think != NULL )
 			{
 				if( __entList[ i ].nextthink <= NOW )
@@ -105,12 +124,7 @@ void UpdateEnts()
 					__entList[ i ].Think( &__entList[ i ] );
 					__entList[ i ].nextthink = NOW + __entList[ i ].thinkrate;
 				}
-			}
-
-			if( __entList[ i ].Move != NULL )
-			{
-				__entList[ i ].Move( &__entList[ i ] );
-			}
+			}		
 		}
 	}
 }
@@ -125,12 +139,6 @@ void DrawEntList()
 		if( ( __entList[ i ].inuse ) && ( __entList[ i ].visible ) )
 		{
 			DrawEnt( &__entList[ i ] );
-
-			if( ( __entList[ i ].numFrames > 0 ) && ( __entList[ i ].drawNextFrame <= NOW ) )
-			{
-				__entList[ i ].frame = ( __entList[ i ].frame + 1 ) % __entList[ i ].numFrames;
-				__entList[ i ].drawNextFrame = NOW + __entList[ i ].frameDelay;
-			}
 		}
 	}
 }
@@ -138,8 +146,16 @@ void DrawEntList()
 
 void DrawEnt( Entity *ent )
 {
-	if( ent->sprite != NULL )
+	if( ent->Draw )
 	{
-		DrawSprite( ent->sprite, screen, ent->position[ 0 ], ent->position[ 1 ], ent->frame );
+		ent->Draw( ent );
+	}
+	else if( !ent->sprite )
+	{
+		fprintf( stderr, "ERROR: DrawEnt: no sprite or draw function for entity" );		
+	}
+	else
+	{
+		DrawSprite( ent->sprite, screen, ent->position[ 0 ], ent->position[ 1 ], 0 );
 	}
 }

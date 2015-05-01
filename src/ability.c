@@ -83,8 +83,8 @@ void LoadAbility( Ability *ability, char *filename, Entity *owner )
 
 	fclose( abilityfile );
 
-	offset[ 0 ] = owner->width / 2;
-	offset[ 1 ] = owner->height / 2;
+	offset[ 0 ] = owner->w / 2;
+	offset[ 1 ] = owner->h / 2;
 
 	ability->owner = owner;
 	ability->inuse = 0;
@@ -170,7 +170,7 @@ void PatternPoint( Ability *ability )
 
 			Vec2Copy( *CalculateProjectileVelocity( ang, ability->velocity ), v );
 
-			InitProjectile( ability->owner, ability->owner->opponent, ability->owner->projectile, startpos, v, ability->fuse, 0 );
+			//InitProjectile( ability->owner, ability->owner->opponent, ability->owner->projectile, startpos, v, ability->fuse, 0 );
 		}
 	}
 }

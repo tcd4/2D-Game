@@ -22,10 +22,13 @@ int main( int argc, char *argv[] )
 	int done;
 	int keyn;
 	Level *level;
+	Entity *player;
 
 	Init_All();
 
 	level = LoadLevel( "def/Levels/Flame_Hell.txt" );
+	player = InitPlayer( "def/Characters/Marisa/Marisa.txt" );
+	player->visible = 1;
 
 	done = 0;
 	do
@@ -53,7 +56,7 @@ int main( int argc, char *argv[] )
 void Draw()
 {
 		DrawLevels();
-		//DrawEntList();
+		DrawEntList();
 }
 
 
@@ -71,9 +74,10 @@ void CleanUpAll()
 void Init_All()
 {
 	Init_Graphics();
-	InitLevelSystem();
 	InitAudio();
-	InitEntList();
+
+	InitLevelSystem();
+	InitEntitySystem();
 
 	atexit( CleanUpAll );
 }

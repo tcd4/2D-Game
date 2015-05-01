@@ -12,24 +12,22 @@
 #include "entity.h"
 
 
-#define MAX_VELOCITY 5
-#define MODE_SWITCH_CD 500
-
-
 /**
  * @brief initializes the player
  *
  * @return a pointer to the player entity
  */
-Entity *InitPlayer();
+Entity *InitPlayer( char *filename );
 
 /**
  * @brief loads the specfied player
  *
  * @param self a pointer to the player entity
  * @param filename the file name and path to the player defintion file
+ *
+ * @return 1 if the player loaded and 0 if they did not
  */
-void LoadPlayer( Entity *self, char *filename);
+int LoadPlayer( Entity *self, char *filename);
 
 /**
  * @brief checks the input to adjust the player

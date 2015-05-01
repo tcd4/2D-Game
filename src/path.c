@@ -34,8 +34,8 @@ void NextPosition( struct entity_s *ent )
 {
 	struct path_s *temp;
 
-	temp = ent->path;
-	ent->path = ent->path->next;
+	//temp = ent->path;
+	//ent->path = ent->path->next;
 
 	free( temp );
 }

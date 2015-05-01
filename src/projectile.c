@@ -70,24 +70,19 @@ void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos
 		return;
 	}
 
-	self->classname = "projectile";
+//	self->name = "projectile";
 
 	self->self = self;
 	self->owner = owner;
-	self->opponent = opponent;
 
 	self->sprite = sprite;
-	self->frame = 0;
-	self->numFrames = 0;
 	self->visible = 1;
 
-	self->width = self->sprite->w;
-	self->height = self->sprite->h;
+	self->w = self->sprite->w;
+	self->h = self->sprite->h;
 
 	Vec2Copy( pos, self->position );
 	Vec2Copy( v, self->velocity );
-
-	self->damage = damage;
 
 	self->Move = ProjectileMove;
 
