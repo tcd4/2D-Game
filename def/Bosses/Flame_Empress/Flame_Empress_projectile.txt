@@ -1,3 +1,0 @@
-sprite: images/Bosses/Flame_Empress/Flame_Empress_projectile.png
-height: 5
-width: 5
