@@ -24,7 +24,7 @@ void BossMove( Entity *self );
 
 
 void LoadBoss( Entity *self, char *filename )
-{
+{/*
 	FILE *bossfile = NULL;
 	char buf[ 128 ];
 	char bossimagepath[ 128 ];
@@ -93,12 +93,12 @@ void LoadBoss( Entity *self, char *filename )
 
 	LoadProjectile( self, projdefpath );
 
-	self->sprite = stemp;
+	self->sprite = stemp;*/
 }
 
 
 Entity *InitBoss( char *filename )
-{
+{/*
 	Entity *self = NULL;
 	float x;
 
@@ -134,7 +134,7 @@ Entity *InitBoss( char *filename )
 	cooldown = 0;
 	lock = 0;
 
-	return self;
+	return self;*/
 }
 
 
@@ -192,7 +192,7 @@ void BossMove( Entity *self )
 
 
 void CalculateVelocity( Entity *self )
-{
+{/*
 	float hypot;
 	vec2_t dist;
 
@@ -200,19 +200,19 @@ void CalculateVelocity( Entity *self )
 	hypot = sqrt( pow( dist[ 0 ], 2 ) + pow( dist[ 1 ], 2 ) );
 
 	self->velocity[ 0 ] = __moveSpeed * ( dist[ 0 ] / hypot );
-	self->velocity[ 1 ] = __moveSpeed * ( dist[ 1 ] / hypot );
+	self->velocity[ 1 ] = __moveSpeed * ( dist[ 1 ] / hypot );*/
 }
 
 
 void BossThink( Entity *self )
 {
-	CheckAbilities( self );
-	UseRandomAbility( self );
+	//CheckAbilities( self );
+	//UseRandomAbility( self );
 }
 
 
 void CheckAbilities( Entity *self )
-{
+{/*
 	int i;
 
 	for( i = 0; i < __numAbilities; i++ )
@@ -236,12 +236,12 @@ void CheckAbilities( Entity *self )
 		{
 			UseAbility( &abilityList[ i ] );
 		}
-	}
+	}*/
 }
 
 
 void UseRandomAbility( Entity *self )
-{
+{/*
 	int i;
 
 	if( ( cooldown < NOW ) && ( !lock ) )
@@ -266,21 +266,21 @@ void UseRandomAbility( Entity *self )
 			//EndAbilities();
 			UseAbility( &abilityList[ i ] );
 		}
-	}
+	}*/
 }
 
 
 void StopAbility( Entity *self, int index )
-{
+{/*
 	abilityList[ index ].inuse = 0;
 	abilityList[ index ].startTime = 0;
 	lock -= abilityList[ index ].lock;
-	self->movetype = MOVE_RANDOM;
+	self->movetype = MOVE_RANDOM;*/
 }
 
 
 void EndAbilities()
-{
+{/*
 	int i;
 
 	for( i = 0; i < __numAbilities; i++ )
@@ -289,16 +289,16 @@ void EndAbilities()
 		{
 			abilityList[ i ].inuse = 0;
 		}	
-	}
+	}*/
 }
 
 
 void EndAllAbilities()
-{
+{/*
 	int i;
 
 	for( i = 0; i < __numAbilities; i++ )
 	{
 		abilityList[ i ].inuse = 0;
-	}
+	}*/
 }

@@ -1,10 +1,10 @@
 name: Marisa
 
-size: 35,33
+size: 33,35
 sprite: images/Characters/Marisa/Marisa.png
 bbox: 0,0
 offset: 0,0
-actor: hi
+actor: def/Characters/Marisa/Animations/idle.txt
 
 projectile: hi
 

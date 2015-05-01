@@ -40,7 +40,7 @@ void FreeEntList()
 		}
 	}
 
-	fprintf( stdout, "FreeEntList: all entities freed" );
+	fprintf( stdout, "FreeEntList: all entities freed\n" );
 }
 
 
@@ -152,7 +152,7 @@ void DrawEnt( Entity *ent )
 	}
 	else if( !ent->sprite )
 	{
-		fprintf( stderr, "ERROR: DrawEnt: no sprite or draw function for entity" );		
+		fprintf( stderr, "ERROR: DrawEnt: no sprite or draw function for entity\n" );		
 	}
 	else
 	{

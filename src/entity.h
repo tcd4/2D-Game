@@ -29,10 +29,9 @@ typedef struct entity_s
 
 	Sprite			*sprite;				/**< pointer to the entity's sprite */
 	Actor			*actors[ MAX_ACTORS ];	/**< actors for the entity */
+	int				state;					/**< what the entity is currently doing */
 	int				numActors;				/**< the number of actors an entity has */
 	int				w, h;					/**< width and height of the sprite */
-
-	Sprite			*projectile;			/**< pointer to the entity's projectile sprite */
 
 	int				collision;				/**< determines if the entity has collision */
 	vec4_t			bbox;					/**< bounding box for the entity */
@@ -104,6 +103,13 @@ void FreeEnt( Entity *ent );
  * @brief allows entities to have a mind of their own
  */
 void UpdateEnts();
+
+/**
+ * @brief changes which state an entity is in
+ *
+ * @param ent the entity that is changing states
+ */
+void ChangeState( Entity *ent );
 
 
 #endif

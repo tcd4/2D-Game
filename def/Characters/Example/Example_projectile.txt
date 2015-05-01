@@ -1,3 +1,0 @@
-sprite: 	path to the projectile sprite
-height: 	height of the projectile
-width: 		width of the projectile

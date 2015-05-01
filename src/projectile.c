@@ -12,7 +12,7 @@ void ProjectileMove( Entity *self );
 
 
 void LoadProjectile( Entity *owner, char *filename )
-{
+{/*
 	FILE *projfile = NULL;
 	char buf[ 128 ];
 	char projimagepath[ 128 ];
@@ -55,12 +55,12 @@ void LoadProjectile( Entity *owner, char *filename )
 		exit( -1 );
 	}
 
-	owner->projectile = temp;
+	owner->projectile = temp;*/
 }
 
 
 void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos, vec2_t v, Uint32 fuse, int damage )
-{
+{/*
 	Entity *self = NULL;
 
 	self = NewEnt();
@@ -95,11 +95,11 @@ void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos
 		self->nextthink = NOW + 5000;
 	}
 
-	self->Think = FreeEnt;
+	self->Think = FreeEnt;*/
 }
 
 
 void ProjectileMove( Entity *self )
 {
-	Vec2Add( self->position, self->velocity, self->position );
+	//Vec2Add( self->position, self->velocity, self->position );
 }

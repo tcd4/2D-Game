@@ -25,10 +25,10 @@ Level *LoadLevel( char *filename )
 
 	/* open the def file */
 	file = fopen( filename, "r" );
-	if( file == NULL )
+	if( !file )
 	{
 		fprintf( stderr, "LoadLevel: ERROR: could not open file: %s\n", filename );
-		return;
+		return NULL;
 	}
 
 	/* go through the def file */
@@ -123,8 +123,6 @@ void DrawLevels()
 
 void DrawLevel( Level *level )
 {
-	int i;
-
 	if( level->background )
 	{
 		DrawSprite( level->background, screen, 0, 0, 0 );

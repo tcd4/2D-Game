@@ -8,6 +8,9 @@
 #define __ACTOR__
 
 
+#include "types.h"
+
+
 /**
  * @brief defines the animation types
  */
@@ -25,28 +28,34 @@ typedef enum
  */
 typedef struct
 {
-	char		*action;
+	int			inuse;
+	char		action[ TYPE_NAME_LEN ];
 	int			numFrames;
 	int			frame;
 	int			frameRate;
 	int			animStart;
 	int			animEnd;
-	Anim_Type	type;
+	int			direction;
+	int			type;
 }Actor;
 
 /**
  * @brief creates a new actor
  *
+ * @param filename the file name and path of the actor
+ *
  * @return a pointer to the newly created actor
  */
-Actor *NewActor();
+Actor *NewActor( char *filename );
 
 /**
- * @brief frees an actor
+ * @brief updates the actor
  *
- * @param actor the actor to free
+ * @param actor the actor to use
+ *
+ * @return the current frame of the animation
  */
-void FreeActor( Actor * actor );
+int UseActor( Actor *actor );
 
 
 #endif

@@ -16,6 +16,7 @@ SDL_Surface *buffer;		/**< pointer to the background image buffer */
 SDL_Surface *videobuffer;	/**< pointer to the actual video surface */
 SDL_Rect Camera;			/**< x & y are the coordinates for the background map, w and h are of the screen */
 Uint32 NOW;					/**< the current time since program started */
+Uint32 FRAME;
 
 /*some data on the video settings that can be useful for a lot of functions*/
 Uint32 rmask, gmask, bmask, amask;
@@ -104,6 +105,7 @@ void Init_Graphics()
     Camera.h = screen->h;
     SDL_ShowCursor( SDL_DISABLE );/*don't show the mouse */
     SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL );
+	FRAME = 0;
 }
 
 
@@ -119,6 +121,7 @@ void NextFrame()
 	SDL_Flip( videobuffer );							/*and then update the screen*/
 	Then = NOW;									/*these next few lines  are used to show how long each frame takes to update.  */
 	NOW = SDL_GetTicks();
+	FRAME++;
 	/*  fprintf(stdout,"Ticks passed this frame: %i\n", NOW - Then);*/
 	FrameDelay( 33 ); /*this will make your frame rate about 30 frames per second.  If you want 60 fps then set it to about 15 or 16*/
 }

@@ -1,5 +1,0 @@
-numProj: 5
-rate: 50
-v: 10
-angle: 10
-damage: 10

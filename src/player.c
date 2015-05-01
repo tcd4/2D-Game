@@ -77,16 +77,17 @@ int LoadPlayer( Entity *self, char *filename )
 		{
 			fscanf( file, "%s", path );
 	
-			if( self->numActors + 1 >= MAX_ACTORS )
-			{
+			if( self->numActors + 1 <= MAX_ACTORS )
+			{	
+				self->actors[ self->numActors ] = NewActor( path );
+
+				if( !self->actors )
+				{
+					self->numActors--;
+				}
+
 				self->numActors++;
-				//self->actors[ self->numActors ] = NewActor();
 			}
-		}
-		else if( strncmp( buf, "projectile:", 128 ) == 0 )
-		{
-			fscanf( file, "%s", path );
-			//LoadProjectile( self, path );
 		}
 		else if( strncmp( buf, "mode:", 128 ) == 0 )
 		{
@@ -97,91 +98,8 @@ int LoadPlayer( Entity *self, char *filename )
 
 	fclose( file );
 
-
-	/*
-	FILE *charfile = NULL;
-	char buf[ 128 ];
-	char charimagepath[ 128 ];
-	char projdefpath[ 128 ];
-	char modedefpath[ 128 ];
-	int w, h;
-	int col;
-	int delay;
-	int dmg;
-	Sprite *stemp;
-	Mode *mtemp;
-
-	charfile = fopen( filename, "r" );
-	if( charfile == NULL )
-	{
-		fprintf( stderr, "LoadPlayer: FATAL: could not open file: %s\n", filename );
-		exit( -1 );
-	}
-
-	while( fscanf( charfile, "%s", buf ) != EOF )
-	{
-		if( buf[ 0 ] == '#' )
-		{
-			fgets( buf, sizeof( buf ), charfile );
-		}
-		else if( strncmp( buf, "sprite:", 128 ) == 0 )
-		{
-			fscanf( charfile, "%s", charimagepath );
-		}
-		else if( strncmp( buf, "height:", 128 ) == 0 )
-		{
-			fscanf( charfile, "%i", &h );
-		}
-		else if( strncmp( buf, "width:", 128 ) == 0 )
-		{
-			fscanf( charfile, "%i", &w );
-		}
-		else if( strncmp( buf, "columns:", 128 ) == 0 )
-		{
-			fscanf( charfile, "%i", &col );
-		}
-		else if( strncmp( buf, "delay:", 128 ) == 0 )
-		{
-			fscanf( charfile, "%i", &delay );
-		}
-		else if( strncmp( buf, "proj:", 128 ) == 0 )
-		{
-			fscanf( charfile, "%s", projdefpath );
-		}
-		else if( strncmp( buf, "mode:", 128 ) == 0 )
-		{
-			fscanf( charfile, "%s", modedefpath );
-			
-			__numModes++;
-
-			mtemp = (Mode *)malloc( sizeof( Mode ) * __numModes );
-			memcpy( mtemp, modeList, sizeof( Mode ) * ( __numModes - 1 ) );
-			modeList = mtemp;
-
-			LoadMode( &modeList[ __numModes - 1 ], modedefpath );
-		}
-		else if( strncmp( buf, "damage:", 128 ) == 0 )
-		{
-			fscanf( charfile, "%i", &dmg );
-		}
-	}
-
-	fclose( charfile );
-
-	stemp = LoadSprite( charimagepath, w, h );
-	if( !stemp )
-	{
-		fprintf( stderr, "LoadPlayer: FATAL: could not open sprite file: %s\n", charimagepath );
-		exit( -1 );
-	}
-
-	LoadProjectile( self, projdefpath );
-
-	self->sprite = stemp;
-	self->w = w;
-	self->h = h;
-	*/
 	fprintf( stdout, "LoadPlayer: player loaded\n" );
+	return 1;
 }
 
 
@@ -204,6 +122,7 @@ Entity *InitPlayer( char *filename )
 	self->deadflag = 0;
 	self->thinkrate = 0;
 	self->nextthink = 0;
+	self->state = 0;
 
 	if( !LoadPlayer( self, filename ) )
 	{
@@ -388,25 +307,32 @@ void PlayerMove( Entity *self )
 
 void PlayerFree( Entity *self )
 {
+	int i;
+
 	if( self->sprite )
 	{
 		FreeSprite( self->sprite );
 	}
 
-	if( self->projectile )
+	for( i = 0; i < self->numActors; i++ )
 	{
-		FreeSprite( self->projectile );
+		free( self->actors[ i ] );
+		self->actors[ i ] = NULL;
 	}
+
+	fprintf( stdout, "PlayerFree: player freed\n" );
 }
 
 
 void PlayerDraw( Entity *self )
 {
+	int f;
+
 	if( !self->sprite )
 	{
 		return;
 	}
-	fprintf( stdout, "\nx = %f: y = %f\n", self->position[ 0 ], self->position[ 1 ] );
 
-	DrawSprite( self->sprite, screen, self->position[ 0 ], self->position[ 1 ], 0 );
+	f = UseActor( self->actors[ self->state ] );
+	DrawSprite( self->sprite, screen, self->position[ 0 ], self->position[ 1 ], f );
 }
