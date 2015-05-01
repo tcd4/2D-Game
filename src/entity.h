@@ -9,7 +9,7 @@
 
 
 #include "sprites.h"
-#include "vector.h"
+#include "types.h"
 #include "path.h"
 
 

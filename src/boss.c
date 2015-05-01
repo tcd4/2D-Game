@@ -139,7 +139,7 @@ Entity *InitBoss( char *filename )
 
 	self->movetype = MOVE_RANDOM;
 	self->path = NULL;
-	VectorClear( self->velocity );
+	Vec2Clear( self->velocity );
 
 	self->deadflag = 0;
 	
@@ -183,27 +183,27 @@ void BossMove( Entity *self )
 		}
 	}
 
-	VectorClear( check );
+	Vec2Clear( check );
 
 	//don't recalculate our velocity unless we have to
-	if( VectorCompare( self->velocity, check ) )
+	if( Vec2Compare( self->velocity, check ) )
 	{
 		CalculateVelocity( self );
 	}
 
-	VectorAdd( self->position, self->velocity, check );
+	Vec2Add( self->position, self->velocity, check );
 	
 	//don't overshoot our destination
 	if( ( ( check[ 0 ] <= self->path->pos[ 0 ] ) && ( self->path->pos[ 0 ] <= self->position[ 0 ] ) ) || 
 		( ( check[ 0 ] >= self->path->pos[ 0 ] ) && ( self->path->pos[ 0 ] >= self->position[ 0 ] ) ) )
 	{
-		VectorCopy( self->path->pos, self->position );
-		VectorClear( self->velocity );
+		Vec2Copy( self->path->pos, self->position );
+		Vec2Clear( self->velocity );
 		NextPosition( self );
 	}
 	else
 	{
-		VectorCopy( check, self->position );
+		Vec2Copy( check, self->position );
 	}
 }
 
@@ -213,7 +213,7 @@ void CalculateVelocity( Entity *self )
 	float hypot;
 	vec2_t dist;
 
-	VectorSubtract( self->path->pos, self->position, dist );
+	Vec2Subtract( self->path->pos, self->position, dist );
 	hypot = sqrt( pow( dist[ 0 ], 2 ) + pow( dist[ 1 ], 2 ) );
 
 	self->velocity[ 0 ] = __moveSpeed * ( dist[ 0 ] / hypot );

@@ -84,8 +84,8 @@ void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos
 	self->width = self->sprite->w;
 	self->height = self->sprite->h;
 
-	VectorCopy( pos, self->position );
-	VectorCopy( v, self->velocity );
+	Vec2Copy( pos, self->position );
+	Vec2Copy( v, self->velocity );
 
 	self->damage = damage;
 
@@ -106,5 +106,5 @@ void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos
 
 void ProjectileMove( Entity *self )
 {
-	VectorAdd( self->position, self->velocity, self->position );
+	Vec2Add( self->position, self->velocity, self->position );
 }

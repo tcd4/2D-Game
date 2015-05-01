@@ -83,7 +83,6 @@
     <ClCompile Include="src\player.c" />
     <ClCompile Include="src\projectile.c" />
     <ClCompile Include="src\sprites.c" />
-    <ClCompile Include="src\vector.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ability.h" />
@@ -98,7 +97,7 @@
     <ClInclude Include="src\player.h" />
     <ClInclude Include="src\projectile.h" />
     <ClInclude Include="src\sprites.h" />
-    <ClInclude Include="src\vector.h" />
+    <ClInclude Include="src\types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

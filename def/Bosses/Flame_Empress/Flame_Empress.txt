@@ -1,4 +1,4 @@
-sprite: images/Flame_Empress.png
+sprite: images/Bosses/Flame_Empress/Flame_Empress.png
 height: 65
 width: 50
 

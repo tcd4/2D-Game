@@ -21,10 +21,11 @@ int main( int argc, char *argv[] )
 {
 	int done;
 	int keyn;
+	Level *level;
 
 	Init_All();
 
-	LoadLevel( "def/Levels/Flame_Empress_Level.txt" );
+	level = LoadLevel( "def/Levels/Flame_Hell.txt" );
 
 	done = 0;
 	do
@@ -33,7 +34,7 @@ int main( int argc, char *argv[] )
 
 		Draw();
 
-		UpdateEnts();
+		//UpdateEnts();
 
 		NextFrame();
 		SDL_PumpEvents();
@@ -44,25 +45,26 @@ int main( int argc, char *argv[] )
 		}
 	}while( !done );
 
-	exit( 0 );		/*technically this will end the program, but the compiler likes all functions that can return a value TO return a value*/
+	exit( 0 );
 	return 0;
 }
 
 
 void Draw()
 {
-		DrawLevel();
-		DrawEntList();
+		DrawLevels();
+		//DrawEntList();
 }
 
 
 void CleanUpAll()
 {
-	CloseLevel();
-	CloseSprites();
-	ClearSoundList();
 	FreeEntList();
-	/*any other cleanup functions can be added here*/ 
+	ClearSoundList();
+	CloseLevelSystem();
+	CloseSprites();
+	
+	fflush( stdout );
 }
 
 

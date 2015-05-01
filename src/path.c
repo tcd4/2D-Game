@@ -6,7 +6,7 @@ struct path_s *AddPath( struct path_s *path, vec2_t point )
 	struct path_s *temp;
 
 	temp = ( struct path_s * )malloc( sizeof( struct path_s ) );
-	VectorCopy( point, temp->pos );
+	Vec2Copy( point, temp->pos );
 	temp->next = path;
 	path = temp;
 

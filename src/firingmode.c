@@ -83,7 +83,7 @@ void FindVelocities( Mode *mode, int v )
 
 	for( i = 0; i < mode->numProj; i++ )
 	{
-		VectorClear( mode->velocities[ i ] );
+		Vec2Clear( mode->velocities[ i ] );
 		angrad = ang * ( PI / 180 );
 
 		vx = ( cos( angrad ) ) * v;
@@ -101,7 +101,7 @@ void Fire( Entity *ent, Mode *mode )
 {
 	int i;
 
-	VectorCopy( ent->position, mode->origin );
+	Vec2Copy( ent->position, mode->origin );
 	mode->origin[ 0 ] += ( ent->width / 2 );
 
 	for( i = 0; i < mode->numProj; i++ )

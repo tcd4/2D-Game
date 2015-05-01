@@ -1,4 +1,4 @@
-sprite: images/Marisa.png
+sprite: images/Characters/Marisa/Marisa.png
 height: 35
 width: 33
 

@@ -49,7 +49,7 @@ void LoadAbility( Ability *ability, char *filename, Entity *owner )
 			memcpy( plisttemp, ability->pos, sizeof( vec2_t ) * ( ability->numpos - 1 ) );
 			ability->pos = plisttemp;
 
-			VectorCopy( postemp, ability->pos[ ability->numpos - 1 ] );
+			Vec2Copy( postemp, ability->pos[ ability->numpos - 1 ] );
 		}
 		else if( strncmp( buf, "radius:", 128 ) == 0 )
 		{
@@ -154,21 +154,21 @@ void PatternPoint( Ability *ability )
 	vec2_t startpos;
 	vec2_t v;
 
-	VectorAdd( ability->owner->position, offset, origin );
+	Vec2Add( ability->owner->position, offset, origin );
 
 	maxang = 90 + ability->cone / 2;
 	minang = maxang - ability->cone;
 
 	for( j = 0; j < ability->numpos; j++ )
 	{
-		VectorAdd( origin, ability->pos[ j ], startpos );
+		Vec2Add( origin, ability->pos[ j ], startpos );
 
 		for( i = 0; i < ability->numProj; i++ )
 		{
 			ang = rand() % ability->cone;
 			ang += minang;
 
-			VectorCopy( *CalculateProjectileVelocity( ang, ability->velocity ), v );
+			Vec2Copy( *CalculateProjectileVelocity( ang, ability->velocity ), v );
 
 			InitProjectile( ability->owner, ability->owner->opponent, ability->owner->projectile, startpos, v, ability->fuse, 0 );
 		}

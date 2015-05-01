@@ -138,7 +138,7 @@ Entity *InitPlayer()
 	self->position[ 0 ] = x;
 	self->position[ 1 ] = y;
 	self->movetype = MOVE_NO;
-	VectorClear( self->velocity );
+	Vec2Clear( self->velocity );
 
 	self->deadflag = 0;
 	
@@ -288,7 +288,7 @@ void PlayerMove( Entity *self )
 		self->velocity[ 1 ] = -MAX_VELOCITY;
 	}
 	
-	VectorAdd( self->velocity, self->position, self->position );
+	Vec2Add( self->velocity, self->position, self->position );
 
 	/* make sure we stay on the screen */
 	if( self->position[ 0 ] < 0 )
