@@ -23,9 +23,9 @@ Entity *InitBoss( char *filename );
 /**
  * @brief loads the specified boss
  *
- * @return a pointer to the boss entity
+ * @return 1 if the boss loaded and 0 for anything else
  */
-void LoadBoss( Entity *self, char *filename );
+int LoadBoss( Entity *self, char *filename );
 
 /**
  * @brief calculates the velocity of the boss

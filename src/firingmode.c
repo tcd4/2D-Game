@@ -15,6 +15,7 @@ int LoadFiringMode( FireMode *mode, char *filename )
 	char path[ FILE_PATH_LEN ];
 	int w, h;
 	int subnum = 0;
+	int fpl;
 	FireMode *temp = NULL;
 
 	if( mode )
@@ -43,10 +44,14 @@ int LoadFiringMode( FireMode *mode, char *filename )
 		{
 			fscanf( file, "%s", path );
 		}
+		else if( strncmp( buf, "framesperline:", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &fpl );
+		}
 		else if( strncmp( buf, "size:", 128 ) == 0 )
 		{
 			fscanf( file, "%i,%i", &w, &h );
-			mode->proj = LoadSprite( path, w, h );
+			mode->proj = LoadSprite( path, w, h, fpl );
 		}
 		else if( strncmp( buf, "position:", 128 ) == 0 )
 		{

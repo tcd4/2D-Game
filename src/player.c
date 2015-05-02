@@ -33,6 +33,7 @@ int LoadPlayer( Entity *self, char *filename )
 	char path[ FILE_PATH_LEN ];
 	Sprite *temp;
 	int loadedmodes = 0;
+	int fpl;
 
 	file = fopen( filename, "r" );
 	if( !file )
@@ -56,19 +57,22 @@ int LoadPlayer( Entity *self, char *filename )
 		{
 			fscanf( file, "%s", path );
 
-			temp = LoadSprite( path, self->w, self->h );
-			if( temp )
+			temp = LoadSprite( path, self->w, self->h, fpl );
+			if( !temp )
 			{
-				self->sprite = temp;
+				fprintf( stderr, "ERROR: LoadPlayer: could not open player sprite\n" );
+				return 0;
 			}
-			else
-			{
-				fprintf( stderr, "ERROR: LoadPlayer: could not open character sprite\n" );
-			}
+			
+			self->sprite = temp;
 		}
 		else if( strncmp( buf, "size:", 128 ) == 0 )
 		{
 			fscanf( file, "%i,%i", &self->w, &self->h );		
+		}
+		else if( strncmp( buf, "framesperline:", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &fpl );
 		}
 		else if( strncmp( buf, "bbox:", 128 ) == 0 )
 		{
@@ -117,6 +121,7 @@ Entity *InitPlayer( char *filename )
 	if( self == NULL )
 	{
 		fprintf( stderr, "InitPlayer: FATAL: could not load player\n" );
+		exit( 1 );
 	}
 
 	Vec2Clear( self->position );
@@ -146,7 +151,7 @@ Entity *InitPlayer( char *filename )
 	self->owner = NULL;
 	self->self = self;
 
-	self->position[ 0 ] = ( screen->w / 2 ) - ( self->w / 2 );
+	self->position[ 0 ] = ( screen->w / 2 ) - ( self->w / 2 ) - 15;
 	self->position[ 1 ] = screen->h - self->h;
 
 	self->trapped = 1;
@@ -260,11 +265,6 @@ void PlayerFree( Entity *self )
 void PlayerDraw( Entity *self )
 {
 	int f;
-
-	if( !self->sprite )
-	{
-		return;
-	}
 
 	f = UseActor( self->actors[ self->state ] );
 	DrawSprite( self->sprite, screen, self->position[ 0 ], self->position[ 1 ], f );

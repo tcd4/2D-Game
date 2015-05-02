@@ -62,10 +62,11 @@ void FreeSprite( Sprite *img );
  * @param filename the filename of the sprite sheet
  * @param sizex the width of the sprite on the screen
  * @param sizey the height of the sprite on the screen
+ * @param fpl the number of frames per line
  *
  * @return a pointer to the loaded sprite
  */
-Sprite *LoadSprite( char *filename, int sizex, int sizey );	
+Sprite *LoadSprite( char *filename, int sizex, int sizey, int fpl );	
 
 /**
  * @brief the palette swapping version of LoadSprite.  

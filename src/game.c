@@ -6,6 +6,7 @@
 #include "level.h"
 #include "entity.h"
 #include "player.h"
+#include "boss.h"
 
 extern SDL_Surface *screen;
 extern SDL_Surface *buffer; /*pointer to the draw buffer*/
@@ -23,12 +24,16 @@ int main( int argc, char *argv[] )
 	int keyn;
 	Level *level;
 	Entity *player;
+	Entity *boss;
 
 	Init_All();
 
 	level = LoadLevel( "def/Levels/Flame_Hell.txt" );
 	player = InitPlayer( "def/Characters/Marisa/Marisa.txt" );
 	player->visible = 1;
+
+	boss = InitBoss( "def/Bosses/Flame_Empress/Flame_Empress.txt" );
+	boss->visible = 1;
 
 	done = 0;
 	do

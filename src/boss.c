@@ -21,10 +21,85 @@ void BossThink( Entity *self );
 void BossTouch( Entity *self, Entity *other );
 void BossDie( Entity *self );
 void BossMove( Entity *self );
+void BossFree( Entity *self );
+void BossDraw( Entity *self );
 
 
-void LoadBoss( Entity *self, char *filename )
-{/*
+int LoadBoss( Entity *self, char *filename )
+{
+	FILE *file = NULL;
+	char buf[ 128 ];
+	char path[ FILE_PATH_LEN ];
+	Sprite *temp;
+	int fpl;
+
+	file = fopen( filename, "r" );
+	if( !file )
+	{
+		fprintf( stderr, "ERROR: LoadBoss: could not open file: %s\n", filename );
+		return 0;
+	}
+
+	while( fscanf( file, "%s", buf ) != EOF )
+	{
+		if( buf[ 0 ] == '#' )
+		{
+			fgets( buf, sizeof( buf ), file );
+		}
+		else if( strncmp( buf, "name:", 128 ) == 0 )
+		{
+			fscanf( file, "%s", self->name );
+		}
+		else if( strncmp( buf, "sprite:", 128 ) == 0 )
+		{
+			fscanf( file, "%s", path );
+
+			temp = LoadSprite( path, self->w, self->h, fpl );
+			if( !temp )
+			{
+				fprintf( stderr, "ERROR: LoadBoss: could not open boss sprite\n" );
+				return 0;
+			}
+			
+			self->sprite = temp;
+		}
+		else if( strncmp( buf, "size:", 128 ) == 0 )
+		{
+			fscanf( file, "%i,%i", &self->w, &self->h );		
+		}
+		else if( strncmp( buf, "framesperline:", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &fpl );
+		}
+		else if( strncmp( buf, "bbox:", 128 ) == 0 )
+		{
+			fscanf( file, "%i,%i", &self->bbox[ 3 ], &self->bbox[ 4 ] );
+		}
+		else if( strncmp( buf, "offset:", 128 ) == 0 )
+		{
+			fscanf( file, "%i,%i", &self->offset[ 0 ], &self->offset[ 1 ] );
+		}
+		else if( strncmp( buf, "actor:", 128 ) == 0 )
+		{
+			fscanf( file, "%s", path );
+	
+			if( self->numActors + 1 <= MAX_ACTORS )
+			{	
+				self->actors[ self->numActors ] = NewActor( path );
+
+				if( !self->actors )
+				{
+					self->numActors--;
+				}
+				
+				self->numActors++;
+			}
+		}
+	}
+
+	fclose( file );
+
+	/*
 	FILE *bossfile = NULL;
 	char buf[ 128 ];
 	char bossimagepath[ 128 ];
@@ -94,11 +169,60 @@ void LoadBoss( Entity *self, char *filename )
 	LoadProjectile( self, projdefpath );
 
 	self->sprite = stemp;*/
+	fprintf( stdout, "LoadBoss: %s loaded\n", self->name );
+	return 1;
 }
 
 
 Entity *InitBoss( char *filename )
-{/*
+{
+	Entity *self = NULL;
+
+	self = NewEnt();
+	if( !self )
+	{
+		fprintf( stderr, "FATAL: InitBoss: could not load boss\n" );
+		exit( 1 );
+	}
+
+	Vec2Clear( self->position );
+	Vec2Clear( self->velocity );
+	Vec4Clear( self->bbox );
+	Vec2Clear( self->offset );
+
+	if( !LoadBoss( self, filename ) )
+	{
+		FreeEnt( self );
+		return NULL;
+	}
+
+	self->numActors = 0;
+	self->deadflag = 0;
+	self->thinkrate = 1;
+	self->state = 0;
+
+	self->Draw = BossDraw;
+	self->Think = BossThink;
+	self->Touch = BossTouch;
+	self->Die = BossDie;
+	self->Free = BossFree;
+	self->Move = BossMove;
+
+	self->owner = NULL;
+	self->self = self;
+
+	self->position[ 0 ] = ( screen->w / 2 ) - ( self->w / 2 );
+	self->position[ 1 ] = 20;
+	
+	self->trapped = 1;
+	self->canCollide = 0;
+	self->group = 4;
+	self->visible = 0;
+	self->inuse = 1;
+
+	fprintf( stdout, "InitBoss: boss initialized\n" );
+	return self;
+	/*
 	Entity *self = NULL;
 	float x;
 
@@ -135,6 +259,7 @@ Entity *InitBoss( char *filename )
 	lock = 0;
 
 	return self;*/
+	return NULL;
 }
 
 
@@ -301,4 +426,28 @@ void EndAllAbilities()
 	{
 		abilityList[ i ].inuse = 0;
 	}*/
+}
+
+
+void BossFree( Entity *self )
+{
+}
+
+
+void BossDraw( Entity *self )
+{
+	int f;
+
+	f = UseActor( self->actors[ self->state ] );
+	DrawSprite( self->sprite, screen, self->position[ 0 ], self->position[ 1 ], f );
+}
+
+
+void BossTouch( Entity *self, Entity *other )
+{
+}
+
+
+void BossDie( Entity *self )
+{
 }

@@ -28,15 +28,16 @@ typedef enum
  */
 typedef struct
 {
-	int			inuse;
-	char		action[ TYPE_NAME_LEN ];
-	int			numFrames;
-	int			frame;
-	int			frameRate;
-	int			animStart;
-	int			animEnd;
-	int			direction;
-	int			type;
+	int			inuse;						/**< determines if the actor is being used */
+	int			done;						/**< determines if the actor is finish being player */
+	char		action[ TYPE_NAME_LEN ];	/**< the action the actor does */
+	int			numFrames;					/**< the number of frames the actor uses */
+	int			frame;						/**< the current frame the actor is on */
+	int			frameRate;					/**< how often the animation updates */
+	int			animStart;					/**< the frame to start on */
+	int			animEnd;					/**< the frame to end on */
+	int			direction;					/**< the direction the animation is being player */
+	int			type;						/**< the Anim_Type the actor is */
 }Actor;
 
 /**
@@ -56,6 +57,11 @@ Actor *NewActor( char *filename );
  * @return the current frame of the animation
  */
 int UseActor( Actor *actor );
+
+/**
+ * @brief resets an actor
+ */
+void ResetActor( Actor *actor );
 
 
 #endif

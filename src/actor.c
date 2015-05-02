@@ -62,7 +62,9 @@ Actor *NewActor( char *filename )
 	actor->frame = actor->animStart;
 	actor->direction = 1;
 	actor->inuse = 0;
+	actor->done = 0;
 
+	fprintf( stdout, "NewActor: %s actor loaded\n", actor->action );
 	return actor;
 }
 
@@ -73,6 +75,7 @@ int UseActor( Actor *actor )
 
 	if( !actor )
 	{
+		fprintf( stderr, "ERROR: UseActor: actor is non-existent" );
 		return 0;
 	}
 
@@ -95,6 +98,7 @@ int UseActor( Actor *actor )
 			else
 			{
 				actor->frame = actor->animEnd;
+				actor->done = 1;
 			}
 		}
 		else if( actor->frame < actor->animStart )
@@ -105,4 +109,12 @@ int UseActor( Actor *actor )
 	}
 
 	return i;
+}
+
+
+void ResetActor( Actor *actor )
+{
+	actor->frame = actor->animStart;
+	actor->direction = 1;
+	actor->done = 0;
 }

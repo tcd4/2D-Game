@@ -72,7 +72,7 @@ void LoadBackground( char *filename, Level *level )
 {
 	Sprite *temp;
 
-	temp = LoadSprite( filename, level->w, level->h );
+	temp = LoadSprite( filename, level->w, level->h, 1 );
 	if( !temp )
 	{
 		fprintf( stderr, "LoadLevel: ERROR: could not open sprite file: %s\n", filename );
@@ -89,7 +89,7 @@ void LoadLayer( char *filename, Level *level )
 	Sprite *temp;
 	Sprite *templist;
 
-	temp = LoadSprite( filename, level->w, level->h );
+	temp = LoadSprite( filename, level->w, level->h, 1 );
 	if( !temp )
 	{
 		fprintf( stderr, "LoadLayer: ERROR: could not open sprite file: %s\n", filename );

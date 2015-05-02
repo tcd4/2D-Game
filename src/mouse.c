@@ -6,7 +6,7 @@ extern SDL_Surface *screen;
 
 void InitMouse()
 {
-	Msprite = LoadSprite( "images/character1.png", 44, 40 );
+	Msprite = LoadSprite( "images/character1.png", 44, 40, 1 );
 	if( Msprite == NULL )
 	{
 		fprintf( stdout,"mouse didn't load\n" );

@@ -22,7 +22,7 @@ void InitSpriteList()
 }
 
 
-Sprite *LoadSprite( char *filename, int sizex, int sizey )
+Sprite *LoadSprite( char *filename, int sizex, int sizey, int fpl )
 {
 	int i;
 	SDL_Surface *temp;
@@ -66,7 +66,7 @@ Sprite *LoadSprite( char *filename, int sizex, int sizey )
 	/*then copy the given information to the sprite*/
 	strncpy( SpriteList[ i ].filename, filename, 20 );
 	/*now sprites don't have to be 16 frames per line, but most will be.*/
-	SpriteList[ i ].framesperline = 16;
+	SpriteList[ i ].framesperline = fpl;
 	SpriteList[ i ].w = sizex;
 	SpriteList[ i ].h = sizey;
 	SpriteList[ i ].used++;
@@ -205,8 +205,8 @@ void SwapSprite( SDL_Surface *sprite, int color1, int color2, int color3 )
 	{
 		for( x = 0; x < sprite->w; x++ )
 		{                           
-			 pixel = getpixel( sprite, x, y );/*and swap it*/
-			 putpixel( sprite, x, y, SetColor( pixel, color1, color2, color3 ) );
+			// pixel = getpixel( sprite, x, y );/*and swap it*/
+			// putpixel( sprite, x, y, SetColor( pixel, color1, color2, color3 ) );
 		}
 	}
 	SDL_UnlockSurface( sprite );
