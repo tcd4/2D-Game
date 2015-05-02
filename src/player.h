@@ -49,5 +49,11 @@ void InitFireModeList();
  */
 void ClearFireModeList();
 
+/**
+ * @brief switches to the next firing mode
+ *
+ * @param self the player entity
+ */
+void ChangeFireMode( Entity *self );
 
 #endif

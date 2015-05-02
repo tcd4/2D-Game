@@ -33,7 +33,8 @@ typedef struct entity_s
 	int				numActors;				/**< the number of actors an entity has */
 	int				w, h;					/**< width and height of the sprite */
 
-	int				collision;				/**< determines if the entity has collision */
+	int				group;					/**< determines the group the entity is in */
+	int				canCollide;				/**< determines if the entity can collide */
 	vec4_t			bbox;					/**< bounding box for the entity */
 	vec2_t			offset;					/**< bounding box offset */				
 	vec2_t			velocity;				/**< velocity of the entity */

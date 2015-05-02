@@ -8,15 +8,9 @@
 #ifndef __PROJECTILE__
 #define __PROJECTILE__
 
+
 #include "entity.h"
 
-/**
- * @brief loads the character's projectile
- *
- * @param self a pointer to the projectile's owner
- * @param filename the file name and path to the projectile definition file
- */
-void LoadProjectile( Entity *owner, char *filename );
 
 /**
  * @brief initializes a projectile

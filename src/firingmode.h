@@ -33,6 +33,7 @@ typedef struct firing_mode_s
 	struct firing_mode_s	*concurrent_mode;		/**< gives firing modes sub-modes */	
 }FireMode;
 
+
 /**
  * @brief loads the firing mode into memory
  *

@@ -154,7 +154,7 @@ void Fire( Entity *ent, FireMode *mode )
 
 	for( i = 0; i < mode->numProj; i++ )
 	{
-		InitProjectile( ent, ent->collision, mode->proj, pos, mode->velocities[ i ], mode->fuse, mode->damage ); 
+		InitProjectile( ent, ent->group, mode->proj, pos, mode->velocities[ i ], mode->fuse, mode->damage ); 
 	}
 
 	for( i = 0; i < mode->concurrent_num; i++ )

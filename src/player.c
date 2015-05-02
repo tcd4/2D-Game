@@ -12,7 +12,8 @@ extern SDL_Surface *screen;
 
 static int __numModes = 0;
 static int __curMode = 0;
-static Uint32 __canModeSwitch = 0;
+static int __nextFire = 0;
+static int __canModeSwitch = 0;
 static float __maxVelocity = 7.500;
 static FireMode * __modeList = NULL;
 
@@ -40,6 +41,7 @@ int LoadPlayer( Entity *self, char *filename )
 		return 0;
 	}
 	
+	/* go through the def file */
 	while( fscanf( file, "%s", buf ) != EOF )
 	{
 		if( buf[ 0 ] == '#' )
@@ -124,7 +126,7 @@ Entity *InitPlayer( char *filename )
 
 	self->numActors = 0;
 	self->deadflag = 0;
-	self->thinkrate = 2;
+	self->thinkrate = 1;
 	self->state = 0;
 
 	InitFireModeList();
@@ -148,6 +150,8 @@ Entity *InitPlayer( char *filename )
 	self->position[ 1 ] = screen->h - self->h;
 
 	self->trapped = 1;
+	self->canCollide = 0;
+	self->group = 2;
 	self->visible = 0;
 	self->inuse = 1;
 
@@ -160,14 +164,20 @@ void PlayerThink( Entity *self )
 {
 	CheckInput( self );
 
-	Fire( self, &__modeList[ __curMode ] );
-	/*
-	if( modeList[ __curMode ].nextFire <= NOW )
+	if( __nextFire <= 0 )
 	{
-		Fire( self, &modeList[ __curMode ] );
+		Fire( self, &__modeList[ __curMode ] );
+		__nextFire = __modeList[ __curMode ].fireRate;
+	}
+	else
+	{
+		__nextFire--;
+	}
 
-		modeList[ __curMode ].nextFire = NOW + modeList[ __curMode ].fireRate;
-	}*/
+	if( __canModeSwitch )
+	{
+		__canModeSwitch--;
+	}
 }
 
 
@@ -193,16 +203,28 @@ void CheckInput( Entity *self )
 		self->velocity[ 0 ] = __maxVelocity;
 	}
 	
-	/*
-	if( keys[ SDLK_SPACE ] )
+	if( keys[ SDLK_SPACE ] && !__canModeSwitch )
 	{
-		if( __canModeSwitch <= NOW )
-		{
-			//__canModeSwitch = NOW + MODE_SWITCH_CD;
+		ChangeFireMode( self );
+	}
+}
 
-			//__curMode = ( __curMode + 1 ) % __numModes;		
-		}
-	}*/
+
+void ChangeFireMode( Entity *self )
+{
+	do
+	{
+		__curMode++;
+		if( __curMode >= MAX_FIRE_MODES )
+		{
+			__curMode = 0;
+		}		
+	}while( !__modeList[ __curMode ].loaded );
+
+	Fire( self, &__modeList[ __curMode ] );
+	__nextFire = __modeList[ __curMode ].fireRate;
+
+	__canModeSwitch = 5;
 }
 
 
