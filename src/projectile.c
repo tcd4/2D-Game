@@ -1,6 +1,6 @@
-#include "projectile.h"
 #include <string.h>
 #include <stdio.h>
+#include "projectile.h"
 
 
 extern Uint32 NOW;
@@ -11,56 +11,35 @@ void ProjectileTouch( Entity *self, Entity *other );
 void ProjectileMove( Entity *self );
 
 
-void LoadProjectile( Entity *owner, char *filename )
-{/*
-	FILE *projfile = NULL;
-	char buf[ 128 ];
-	char projimagepath[ 128 ];
-	int w, h;
-	Sprite *temp;
+void InitProjectile( Entity *owner, int group, Sprite *sprite, vec2_t pos, vec2_t v, Uint32 fuse, int damage )
+{
+	Entity *self = NULL;
 
-	projfile = fopen( filename, "r" );
-	if( projfile == NULL )
+	self = NewEnt();
+	if( !self )
 	{
-		fprintf( stderr, "LoadProjectile: FATAL: could not open file: %s\n", filename );
-		exit( -1 );
+		fprintf( stderr, "ERROR: InitProjectile: could not load projectile\n" );
+		return;
 	}
 
-	while( fscanf( projfile, "%s", buf ) != EOF )
-	{
-		if( buf[ 0 ] == '#' )
-		{
-			fgets( buf, sizeof( buf ), projfile );
-		}
-		else if( strncmp( buf, "sprite:", 128 ) == 0 )
-		{
-			fscanf( projfile, "%s", projimagepath );
-		}
-		else if( strncmp( buf, "width:", 128 ) == 0 )
-		{
-			fscanf( projfile, "%i", &w );
-		}
-		else if( strncmp( buf, "height:", 128 ) == 0 )
-		{
-			fscanf( projfile, "%i", &h );
-		}
-	}
+	strncpy( self->name, "projectile", TYPE_NAME_LEN );
+	self->owner = owner;
+	self->sprite = sprite;
+	
+	Vec2Copy( pos, self->position );
+	Vec2Copy( v, self->velocity );
 
-	fclose( projfile );
+	self->w = self->sprite->w;
+	self->h = self->sprite->h;
 
-	temp = LoadSprite( projimagepath, w, h );
-	if( !temp )
-	{
-		fprintf( stderr, "LoadProjectile: FATAL: could not open sprite file: %s\n", projimagepath );
-		exit( -1 );
-	}
+	self->damage = damage;
 
-	owner->projectile = temp;*/
-}
+	self->Touch = ProjectileTouch;
+	self->Move = ProjectileMove;
 
-
-void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos, vec2_t v, Uint32 fuse, int damage )
-{/*
+	self->visible = 1;
+	self->self = self;
+	/*
 	Entity *self = NULL;
 
 	self = NewEnt();
@@ -101,5 +80,13 @@ void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos
 
 void ProjectileMove( Entity *self )
 {
-	//Vec2Add( self->position, self->velocity, self->position );
+	if( OutOfBounds( self ) )
+	{
+		FreeEnt( self );
+	}
+}
+
+
+void ProjectileTouch( Entity *self, Entity *other )
+{
 }

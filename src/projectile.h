@@ -21,15 +21,14 @@ void LoadProjectile( Entity *owner, char *filename );
 /**
  * @brief initializes a projectile
  *
- * @param owner a pointer to the owner of the projectile
- * @param opponent a pointer to the opponent of the projectile
- * @param sprite a pointer to the projectile's sprite
+ * @param owner the owner of the projectile
+ * @param group the group the projectile belongs to
+ * @param sprite the projectile's sprite
  * @param pos the starting position of the projectile
- * @param movedir the move direction of the projectile
  * @param v the velocity of the projectile
  * @param fuse the duration the projectile will last
  * @param damage the damage the projectile will do
  */
-void InitProjectile( Entity *owner, Entity *opponent, Sprite *sprite, vec2_t pos, vec2_t v, Uint32 fuse, int damage );
+void InitProjectile( Entity *owner, int group, Sprite *sprite, vec2_t pos, vec2_t v, Uint32 fuse, int damage );
 
 #endif

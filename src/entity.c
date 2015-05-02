@@ -178,10 +178,49 @@ void MoveEnts()
 void MoveEnt( Entity *ent )
 {
 	Vec2Add( ent->position, ent->velocity, ent->position );
+	Vec2Add( ent->origin, ent->velocity, ent->origin );
+
+	if( ent->trapped )
+	{
+		if( ent->position[ 0 ] < 0 )
+		{
+			ent->position[ 0 ] = 0;
+		}
+		else if( ( ent->position[ 0 ] + ent->w ) > screen->w )
+		{
+			ent->position[ 0 ] = screen->w - ent->w;
+		}
+
+		if( ent->position[ 1 ] < 0 )
+		{
+			ent->position[ 1 ] = 0;
+		}
+		else if( ( ent->position[ 1 ] + ent->h ) > screen->h )
+		{
+			ent->position[ 1 ] = screen->h - ent->h;
+		}
+	}
 }
 
 
+int OutOfBounds( Entity *ent )
+{
+	if( ent->position[ 0 ] > screen->w )
+	{
+		return 1;
+	}
+	else if( ent->position[ 1 ] > screen->h )
+	{
+		return 1;
+	}
+	else if( ent->position[ 0 ] + ent->w < 0 )
+	{
+		return 1;
+	}
+	else if( ent->position[ 1 ] + ent->h < 0 )
+	{
+		return 1;
+	}
 
-
-
-
+	return 0;
+}

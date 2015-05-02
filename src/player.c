@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "player.h"
+#include "firingmode.h"
 #include "projectile.h"
 
 
@@ -13,7 +14,7 @@ static int __numModes = 0;
 static int __curMode = 0;
 static Uint32 __canModeSwitch = 0;
 static float __maxVelocity = 7.500;
-//Mode *modeList = NULL;
+static FireMode * __modeList = NULL;
 
 
 void PlayerThink( Entity *self );
@@ -30,6 +31,7 @@ int LoadPlayer( Entity *self, char *filename )
 	char buf[ 128 ];
 	char path[ FILE_PATH_LEN ];
 	Sprite *temp;
+	int loadedmodes = 0;
 
 	file = fopen( filename, "r" );
 	if( !file )
@@ -90,10 +92,11 @@ int LoadPlayer( Entity *self, char *filename )
 				self->numActors++;
 			}
 		}
-		else if( strncmp( buf, "mode:", 128 ) == 0 )
+		else if( strncmp( buf, "firemode:", 128 ) == 0 )
 		{
 			fscanf( file, "%s", path );
-			//LoadFiringMode( self, path );
+			LoadFiringMode( &__modeList[ loadedmodes ], path );
+			loadedmodes++;
 		}	
 	}
 
@@ -124,6 +127,8 @@ Entity *InitPlayer( char *filename )
 	self->thinkrate = 2;
 	self->state = 0;
 
+	InitFireModeList();
+
 	if( !LoadPlayer( self, filename ) )
 	{
 		FreeEnt( self );
@@ -134,7 +139,6 @@ Entity *InitPlayer( char *filename )
 	self->Think = PlayerThink;
 	self->Touch = PlayerTouch;
 	self->Die = PlayerDie;
-	self->Move = PlayerMove;
 	self->Free = PlayerFree;
 
 	self->owner = NULL;
@@ -143,6 +147,7 @@ Entity *InitPlayer( char *filename )
 	self->position[ 0 ] = ( screen->w / 2 ) - ( self->w / 2 );
 	self->position[ 1 ] = screen->h - self->h;
 
+	self->trapped = 1;
 	self->visible = 0;
 	self->inuse = 1;
 
@@ -154,6 +159,8 @@ Entity *InitPlayer( char *filename )
 void PlayerThink( Entity *self )
 {
 	CheckInput( self );
+
+	Fire( self, &__modeList[ __curMode ] );
 	/*
 	if( modeList[ __curMode ].nextFire <= NOW )
 	{
@@ -209,28 +216,6 @@ void PlayerDie( Entity *self )
 }
 
 
-void PlayerMove( Entity *self )
-{
-	if( self->position[ 0 ] < 0 )
-	{
-		self->position[ 0 ] = 0;
-	}
-	else if( (self->position[ 0 ] + self->w ) > screen->w )
-	{
-		self->position[ 0 ] = screen->w - self->w;
-	}
-
-	if( self->position[ 1 ] < 0 )
-	{
-		self->position[ 1 ] = 0;
-	}
-	else if( (self->position[ 1 ] + self->h ) > screen->h )
-	{
-		self->position[ 1 ] = screen->h - self->h;
-	}
-}
-
-
 void PlayerFree( Entity *self )
 {
 	int i;
@@ -261,4 +246,38 @@ void PlayerDraw( Entity *self )
 
 	f = UseActor( self->actors[ self->state ] );
 	DrawSprite( self->sprite, screen, self->position[ 0 ], self->position[ 1 ], f );
+}
+
+
+void InitFireModeList()
+{
+	if( __modeList )
+	{
+		ClearFireModeList();
+	}
+
+	__modeList = ( FireMode *)malloc( sizeof( FireMode ) * MAX_FIRE_MODES );
+
+    if ( __modeList == NULL )
+    {
+        fprintf( stderr, "FATAL: InitEntntList: cannot allocate entity list\n" );
+        exit( -1 );
+    }
+
+	memset( __modeList, 0, sizeof( FireMode ) * MAX_FIRE_MODES );
+	fprintf( stdout, "InitFireModeList: initialized\n" );
+}
+
+
+void ClearFireModeList()
+{
+	int i;
+
+	for( i = 0; i < MAX_FIRE_MODES; i++ )
+	{
+		if( __modeList[ i ].loaded )
+		{
+			FreeFireMode( &__modeList[ i ] );
+		}
+	}
 }

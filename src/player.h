@@ -12,6 +12,9 @@
 #include "entity.h"
 
 
+#define MAX_FIRE_MODES 3
+
+
 /**
  * @brief initializes the player
  *
@@ -35,6 +38,16 @@ int LoadPlayer( Entity *self, char *filename);
  * @param self a pointer to the player entity
  */
 void CheckInput( Entity *self );
+
+/**
+ * @brief initializes the firing mode list
+ */
+void InitFireModeList();
+
+/**
+ * @brief clears the firing mode list and frees the firing modes
+ */
+void ClearFireModeList();
 
 
 #endif

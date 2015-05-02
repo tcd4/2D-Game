@@ -35,12 +35,16 @@ typedef struct entity_s
 
 	int				collision;				/**< determines if the entity has collision */
 	vec4_t			bbox;					/**< bounding box for the entity */
-	vec2_t			offset;					/**< bounding box offset */
-	vec2_t			speed;					/**< velocity of the entity cause I don't know why my velocity wasn't working */
-	vec2_t			velocity;				
+	vec2_t			offset;					/**< bounding box offset */				
+	vec2_t			velocity;				/**< velocity of the entity */
 	vec2_t			position;				/**< position of the entity */
+	vec2_t			origin;					/**< center of the entity */
+	int				trapped;				/**< determines if the entity can leave the screen */
 	
 	Uint32			movetype;				/**< move direction of the entity */
+
+	int				health;					/**< how much health an entity has */
+	int				damage;					/**< how much damage an entity does */
 	
 	int				visible;				/**< determines if the entity can be seen or not */
 	int				deadflag;				/**< determines if the entity has died */
@@ -122,5 +126,12 @@ void MoveEnts();
  * @param ent the entity that is moving
  */
 void MoveEnt( Entity *ent );
+
+/**
+ * @brief checks if an entity is leaving the stage
+ *
+ * @param ent the entity to check for
+ */
+int OutOfBounds( Entity *ent );
 
 #endif
