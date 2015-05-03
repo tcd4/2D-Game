@@ -111,6 +111,18 @@ int LoadAbility( Ability *ability, char *filename, Entity *owner )
 			LoadAbility( &ability->concurrent_ability[ subnum ], path, owner );
 			subnum++;
 		}
+		else if( strncmp( buf, "angle:", 128 ) == 0 )
+		{
+			fscanf( file, "%f", &ability->angle );
+		}
+		else if( strncmp( buf, "cone:", 128 ) == 0 )
+		{
+			fscanf( file, "%f", &ability->cone );
+		} 
+		else if( strncmp( buf, "radius:", 128 ) == 0 )
+		{
+			fscanf( file, "%f", &ability->radius );
+		} 
 	}
 
 	fclose( file );
@@ -130,133 +142,18 @@ int LoadAbility( Ability *ability, char *filename, Entity *owner )
 
 	if( strncmp( ability->pattern, "point", 128 ) == 0 )
 	{
-		LoadPoint( ability, filename );
+		LoadPoint( ability );
 	}
 	else if( strncmp( ability->pattern, "circle", 128 ) == 0 )
 	{
-		LoadCircle( ability, filename );
+		LoadCircle( ability );
 	}
 	else if( strncmp( ability->pattern, "custom", 128 ) == 0 )
 	{
-		LoadCustom( ability, filename );
+		LoadCustom( ability );
 	}
 
 	ability->concurrent_num = subnum;
-	/*
-	FILE *abilityfile = NULL;
-	char buf[ 128 ];
-	char pat[ 128 ];
-	vec2_t postemp;
-	vec2_t *plisttemp;
-	
-	ability->pos = NULL;
-
-	abilityfile = fopen( filename, "r" );
-	if( abilityfile == NULL )
-	{
-		fprintf( stderr, "LoadAbility: Fatal: could not open file: %s\n", filename );
-		exit( -1 );
-	}
-
-	while( fscanf( abilityfile, "%s", buf ) != EOF )
-	{
-		if( buf[ 0 ] == '#' )
-		{
-			fgets( buf, sizeof( buf ), abilityfile );
-		}
-		else if( strncmp( buf, "pattern:", 128 ) == 0 )
-		{
-			fscanf( abilityfile, "%s", pat );
-		}
-		else if( strncmp( buf, "numProj:", 128 ) == 0 )
-		{
-			fscanf( abilityfile, "%i", &ability->numProj );
-		}
-		else if( strncmp( buf, "pos:", 128 ) == 0 )
-		{
-			fscanf( abilityfile, "%f,%f", &postemp[ 0 ], &postemp[ 1 ] );
-
-			ability->numpos++;
-
-			plisttemp = ( vec2_t * )malloc( sizeof( vec2_t ) * ability->numpos );
-			memcpy( plisttemp, ability->pos, sizeof( vec2_t ) * ( ability->numpos - 1 ) );
-			ability->pos = plisttemp;
-
-			Vec2Copy( postemp, ability->pos[ ability->numpos - 1 ] );
-		}
-		else if( strncmp( buf, "radius:", 128 ) == 0 )
-		{
-			fscanf( abilityfile, "%i", &ability->radius );
-		}
-		else if( strncmp( buf, "v:", 128 ) == 0 )
-		{
-			fscanf( abilityfile, "%i", &ability->velocity );
-		}
-		else if( strncmp( buf, "angle:", 128 ) == 0 )
-		{
-			fscanf( abilityfile, "%i", &ability->cone );
-		}
-		else if( strncmp( buf, "rate:", 128 ) == 0 )
-		{
-			fscanf( abilityfile, "%i", &ability->firerate );
-		}
-		else if( strncmp( buf, "dur:", 128 ) == 0 )
-		{
-			fscanf( abilityfile, "%i", &ability->duration );
-		}
-		else if( strncmp( buf, "cd:", 128 ) == 0 )
-		{
-			fscanf( abilityfile, "%i", &ability->cooldown );
-		}
-		else if( strncmp( buf, "mtype:", 128 ) == 0 )
-		{
-			fscanf( abilityfile, "%i", &ability->movement );
-		}
-	}
-
-	fclose( abilityfile );
-
-	offset[ 0 ] = owner->w / 2;
-	offset[ 1 ] = owner->h / 2;
-
-	ability->owner = owner;
-	ability->inuse = 0;
-	ability->endTime = 0;
-
-	ability->pattern = (char *)malloc( sizeof( pat ) );
-	strcpy( ability->pattern, pat );
-
-	if( !ability->startTime )
-	{
-		ability->startTime = 0;
-	}
-
-	if( !ability->duration )
-	{
-		ability->duration = 0;
-	}
-	
-	if( !ability->lock )
-	{
-		ability->lock = 0;
-	}
-
-	if( ability->movement == NULL )
-	{
-		ability->movement = MOVE_NO;
-	}
-
-	if( ability->path )
-	{
-		ability->movement = MOVE_PATH;
-	}
-	else
-	{
-		ability->path = NULL;
-	}
-
-	ability->endTime = 0;*/
-
 	ability->loaded = 1;
 	ability->inuse = 0;
 
@@ -267,33 +164,11 @@ int LoadAbility( Ability *ability, char *filename, Entity *owner )
 
 int LoadPoint( Ability *ability, char *filename )
 {
-	FILE *file = NULL;
-	char buf[ 128 ];
 	int i;
 	float vx, vy;
 	float angle;
 	float curangle;
 	float decriment;
-
-	file = fopen( filename, "r" );
-
-	while( fscanf( file, "%s", buf ) != EOF )
-	{
-		if( buf[ 0 ] == '#' )
-		{
-			fgets( buf, sizeof( buf ), file );
-		}
-		else if( strncmp( buf, "angle:", 128 ) == 0 )
-		{
-			fscanf( file, "%f", &ability->angle );
-		}
-		else if( strncmp( buf, "cone:", 128 ) == 0 )
-		{
-			fscanf( file, "%f", &ability->cone );
-		} 
-	}
-
-	fclose( file );
 
 	if( !ability->relative )
 	{
@@ -322,12 +197,56 @@ int LoadPoint( Ability *ability, char *filename )
 
 int LoadCircle( Ability *ability, char *filename )
 {
+	int i;
+	float angle;
+	float sine, cosine;
+	float increment;
+
+	ability->positions = ( vec2_t * )malloc( sizeof( vec2_t ) * ability->numProj );
+	if( !ability->positions )
+	{
+		fprintf( stderr, "ERROR: LoadPoint: can't allocate memory for positions\n" );
+		return 0;
+	}
+	
+	ability->base = ( vec2_t * )malloc( sizeof( vec2_t ) * ability->numProj );
+	if( !ability->positions )
+	{
+		fprintf( stderr, "ERROR: LoadPoint: can't allocate memory for base positions\n" );
+		return 0;
+	}
+
+	increment = TAU / ability->numProj;
+
+	for( i = 0; i < ability->numProj; i++ )
+	{
+		angle = increment * i;
+
+		sine = sin( angle );
+		cosine = cos( angle );
+		ability->base[ i ][ 0 ] = cosine * ability->radius;
+		ability->base[ i ][ 1 ] = sine * ability->radius;
+
+		ability->velocities[ i ][ 0 ] = cosine * ability->velocity;
+		ability->velocities[ i ][ 1 ] = sine * ability->velocity;
+	}
+
+	if( !ability->relative )
+	{
+		for( i = 0; i < ability->numProj; i++ )
+		{
+			Vec2Add( ability->position, ability->base[ i ], ability->positions[ i ] );
+		}
+	}
+
 	return 1;
 }
 
 
 int LoadCustom( Ability *ability, char *filename )
 {
+
+
 	return 1;
 }
 
@@ -495,6 +414,18 @@ void FirePointAbility( Ability *ability, vec2_t firepos )
 
 void FireCircleAbility( Ability *ability, vec2_t firepos )
 {
+	int i;
+
+	for( i = 0; i < ability->numProj; i++ )
+	{	
+		if( ability->relative )
+		{
+			Vec2Add( firepos, ability->base[ i ], ability->positions[ i ] );
+		}
+
+		InitProjectile( ability->owner, ability->owner->group, ability->proj, ability->positions[ i ],
+			ability->velocities[ i ], ability->fuse, 0 );
+	}
 }
 
 

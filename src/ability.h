@@ -48,12 +48,14 @@ typedef struct ability_s
 	float				angle;						/**< the angle projectiles are fired at */
 	float				cone;						/**< the cone of fire for multiple angles */
 
-
-
+	/* circle variables */
+	float				radius;						/**< the radius of the circle */
+	vec2_t				*base;						/**< the base positions the circle uses */
+	vec2_t				*positions;					/**< the positions the projectiles start at around the circle */
 
 	
 	
-	int				radius;		/**< the radius of the pattern */
+	
 
 	
 	
@@ -85,25 +87,22 @@ int LoadAbility( Ability *ability, char *filename, Entity *owner );
  * @brief loads a point pattern ability
  *
  * @param ability the ability to load
- * @param filename the file name and path to the ability def file
  */
-int LoadPoint( Ability *ability, char *filename );
+int LoadPoint( Ability *ability );
 
 /**
  * @brief loads a circle pattern ability
  *
  * @param ability the ability to load
- * @param filename the file name and path to the ability def file
  */
-int LoadCircle( Ability *ability, char *filename );
+int LoadCircle( Ability *ability );
 
 /**
  * @brief loads a custom pattern ability
  *
  * @param ability the ability to load
- * @param filename the file name and path to the ability def file
  */
-int LoadCustom( Ability *ability, char *filename );
+int LoadCustom( Ability *ability );
 
 
 /**
