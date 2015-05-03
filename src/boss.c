@@ -9,12 +9,12 @@ extern SDL_Surface *screen;
 extern Uint32 NOW;
 
 
-static int __yBound;
+static int __moveRate;
 static int __moveSpeed;
-static int __numAbilities;
-Uint32 cooldown;
-int lock;
-Ability *abilityList = NULL;
+static Ability * __abilityList = NULL;
+
+
+Uint32 cooldown = 0;
 
 
 void BossThink( Entity *self );
@@ -32,6 +32,7 @@ int LoadBoss( Entity *self, char *filename )
 	char path[ FILE_PATH_LEN ];
 	Sprite *temp;
 	int fpl;
+	int loadedabilities = 0;
 
 	file = fopen( filename, "r" );
 	if( !file )
@@ -95,80 +96,28 @@ int LoadBoss( Entity *self, char *filename )
 				self->numActors++;
 			}
 		}
+		else if( strncmp( buf, "health:", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &self->health );
+		}
+		else if( strncmp( buf, "move_speed:", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &__moveSpeed );
+		}
+		else if( strncmp( buf, "move_rate:", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &__moveRate );
+		}
+		else if( strncmp( buf, "ability:", 128 ) == 0 )
+		{
+			fscanf( file, "%s", path );
+			LoadAbility( &__abilityList[ loadedabilities ], path, self );
+			loadedabilities++;
+		} 
 	}
 
 	fclose( file );
 
-	/*
-	FILE *bossfile = NULL;
-	char buf[ 128 ];
-	char bossimagepath[ 128 ];
-	char projdefpath[ 128 ];
-	char abildefpath[ 128 ];
-	Sprite *stemp;
-	Ability *atemp;
-
-	__numAbilities = 0;
-
-	bossfile = fopen( filename, "r" );
-	if( bossfile == NULL )
-	{
-		fprintf( stderr, "LoadBoss: FATAL: could not open file: %s\n", filename );
-		exit( -1 );
-	}
-
-	while( fscanf( bossfile, "%s", buf ) != EOF )
-	{
-		if( buf[ 0 ] == '#' )
-		{
-			fgets( buf, sizeof( buf ), bossfile );
-		}
-		else if( strncmp( buf, "sprite:", 128 ) == 0 )
-		{
-			fscanf( bossfile, "%s", bossimagepath );
-		}
-		else if( strncmp( buf, "height:", 128 ) == 0 )
-		{
-			fscanf( bossfile, "%i", &self->h );
-		}
-		else if( strncmp( buf, "width:", 128 ) == 0 )
-		{
-			fscanf( bossfile, "%i", &self->w );
-		}
-		else if( strncmp( buf, "proj:", 128 ) == 0 )
-		{
-			fscanf( bossfile, "%s", projdefpath );
-		}
-		else if( strncmp( buf, "vel:", 128 ) == 0 )
-		{
-			fscanf( bossfile, "%i", &__moveSpeed );
-		}
-		else if( strncmp( buf, "ability:", 128 ) == 0 )
-		{
-			fscanf( bossfile, "%s", abildefpath );
-
-			__numAbilities++;
-
-			atemp = (Ability *)malloc( sizeof( Ability ) * __numAbilities );
-			memcpy( atemp, abilityList, sizeof( Ability ) * ( __numAbilities - 1 ) );
-			abilityList = atemp;
-
-			LoadAbility( &abilityList[ __numAbilities - 1 ], abildefpath, self );
-		}
-	}
-
-	fclose( bossfile );
-
-	stemp = LoadSprite( bossimagepath, self->w, self->h );
-	if( !stemp )
-	{
-		fprintf( stderr, "LoadBoss: FATAL: could not open sprite file: %s\n", bossimagepath );
-		exit( -1 );
-	}
-
-	LoadProjectile( self, projdefpath );
-
-	self->sprite = stemp;*/
 	fprintf( stdout, "LoadBoss: %s loaded\n", self->name );
 	return 1;
 }
@@ -189,6 +138,8 @@ Entity *InitBoss( char *filename )
 	Vec2Clear( self->velocity );
 	Vec4Clear( self->bbox );
 	Vec2Clear( self->offset );
+
+	InitAbilityList();
 
 	if( !LoadBoss( self, filename ) )
 	{
@@ -212,7 +163,9 @@ Entity *InitBoss( char *filename )
 	self->self = self;
 
 	self->position[ 0 ] = ( screen->w / 2 ) - ( self->w / 2 );
-	self->position[ 1 ] = 20;
+	self->position[ 1 ] = 50;
+	self->origin[ 0 ] = self->position[ 0 ] + (self->w / 2 );
+	self->origin[ 1 ] = self->position[ 1 ] + (self->h / 2 );
 	
 	self->trapped = 1;
 	self->canCollide = 0;
@@ -222,44 +175,42 @@ Entity *InitBoss( char *filename )
 
 	fprintf( stdout, "InitBoss: boss initialized\n" );
 	return self;
-	/*
-	Entity *self = NULL;
-	float x;
+}
 
-	self = NewEnt();
-	if( self == NULL )
+
+void InitAbilityList()
+{
+	if( __abilityList )
 	{
-		fprintf( stderr, "InitBoss: ERROR, could not make a boss entity:\n" );
-		exit( -1 );
+		ClearAbilityList();
+	}
+	else
+	{
+		__abilityList = ( Ability *)malloc( sizeof( Ability ) * MAX_ABILITIES );
 	}
 
-	//self->name = "boss";
-	self->self = self;
-	self->owner = NULL;
+    if ( !__abilityList )
+    {
+        fprintf( stderr, "FATAL: InitAbilityList: cannot allocate ability list\n" );
+        exit( -1 );
+    }
 
-	LoadBoss( self, filename );
+	memset( __abilityList, 0, sizeof( Ability ) * MAX_ABILITIES );
+	fprintf( stdout, "InitAbilityList: initialized\n" );
+}
 
-	self->visible = 1;
 
-	x = ( screen->w / 2 ) - ( self->w / 2 );
-	self->position[ 0 ] = x;
-	self->position[ 1 ] = 1;
-	__yBound = screen->w / 3;
+void ClearAbilityList()
+{
+	int i;
 
-	self->movetype = MOVE_RANDOM;
-
-	Vec2Clear( self->velocity );
-
-	self->deadflag = 0;
-	
-	self->Move = BossMove;
-	self->Think = BossThink;
-
-	cooldown = 0;
-	lock = 0;
-
-	return self;*/
-	return NULL;
+	for( i = 0; i < MAX_ABILITIES; i++ )
+	{
+		if( __abilityList[ i ].loaded )
+		{
+			FreeAbility( &__abilityList[ i ] );
+		}
+	}
 }
 
 
@@ -331,13 +282,27 @@ void CalculateVelocity( Entity *self )
 
 void BossThink( Entity *self )
 {
-	//CheckAbilities( self );
-	//UseRandomAbility( self );
+	if( cooldown < NOW )
+	{
+		StartAbility( &__abilityList[ 0 ] );
+	}
+
+	CheckAbilities( self );
 }
 
 
 void CheckAbilities( Entity *self )
-{/*
+{
+	int i;
+
+	for( i = 0; i < MAX_ABILITIES; i++ )
+	{
+		if( __abilityList[ i ].inuse )
+		{
+			UseAbility( &__abilityList[ i ] );
+		}
+	}
+	/*
 	int i;
 
 	for( i = 0; i < __numAbilities; i++ )

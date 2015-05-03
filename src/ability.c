@@ -1,15 +1,147 @@
-#include "ability.h"
-#include "projectile.h"
 #include <string.h>
 #include <stdio.h>
+#include "ability.h"
+#include "projectile.h"
 
 
+extern SDL_Surface *screen;
 extern Uint32 NOW;
-static vec2_t offset;
+extern Uint32 cooldown;
 
 
-void LoadAbility( Ability *ability, char *filename, Entity *owner )
+int LoadAbility( Ability *ability, char *filename, Entity *owner )
 {
+	FILE *file = NULL;
+	char buf[ 128 ];
+	char path[ FILE_PATH_LEN ];
+	int w, h;
+	int subnum = 0;
+	int fpl;
+	Ability *temp = NULL;
+
+	if( ability )
+	{
+		FreeAbility( ability );
+	}
+
+	ability->owner = owner;
+
+	file = fopen( filename, "r" );
+	if( !file )
+	{
+		fprintf( stderr, "ERROR: LoadAbility: could not open file: %s\n", filename );
+		return 0;
+	}
+
+	while( fscanf( file, "%s", buf ) != EOF )
+	{
+		if( buf[ 0 ] == '#' )
+		{
+			fgets( buf, sizeof( buf ), file );
+		}
+		else if( strncmp( buf, "name:", 128 ) == 0 )
+		{
+			fscanf( file, "%s", ability->name );
+		}
+		else if( strncmp( buf, "anim:", 128 ) == 0 )
+		{
+			fscanf( file, "%s", ability->anim );
+		}
+		else if( strncmp( buf, "size:", 128 ) == 0 )
+		{
+			fscanf( file, "%i,%i", &w, &h );
+		}
+		else if( strncmp( buf, "framesperline:", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &fpl );
+		}
+		else if( strncmp( buf, "projectile:", 128 ) == 0 )
+		{
+			fscanf( file, "%s", path );
+			ability->proj = LoadSprite( path, w, h, fpl );
+		}
+		else if( strncmp( buf, "pattern:", 128 ) == 0 )
+		{
+			fscanf( file, "%s", ability->pattern );
+		}
+		else if( strncmp( buf, "relative:", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &ability->relative );
+		}
+		else if( strncmp( buf, "velocity:", 128 ) == 0 )
+		{
+			fscanf( file, "%f", &ability->velocity );
+		} 
+		else if( strncmp( buf, "duration:", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &ability->duration );
+		}
+		else if( strncmp( buf, "position:", 128 ) == 0 )
+		{
+			fscanf( file, "%f,%f", &ability->position[ 0 ], &ability->position[ 1 ] );
+		}
+		else if( strncmp( buf, "numProj:", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &ability->numProj );
+		}
+		else if( strncmp( buf, "fuse:", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &ability->fuse );
+		}
+		else if( strncmp( buf, "rate:", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &ability->fireRate );
+		}
+		else if( strncmp( buf, "cooldown:", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &ability->cooldown );
+		}
+		else if( strncmp( buf, "start_time:", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &ability->startTime );
+		}
+		else if( strncmp( buf, "ability:", 128 ) == 0 )
+		{
+			fscanf( file, "%s", path );
+
+			temp = ( Ability * )malloc( sizeof( Ability ) * (subnum + 1 ) );
+			memcpy( temp, ability->concurrent_ability, sizeof( Ability ) * subnum );
+			ability->concurrent_ability = temp;
+			LoadAbility( &ability->concurrent_ability[ subnum ], path, owner );
+			subnum++;
+		}
+	}
+
+	fclose( file );
+
+	if( !ability->relative )
+	{
+		ability->position[ 0 ] = screen->w * ( ability->position[ 0 ] / 100.00 );
+		ability->position[ 1 ] = screen->h * ( ability->position[ 1 ] / 100.00 );
+	}
+
+	ability->velocities = ( vec2_t * )malloc( sizeof( vec2_t ) * ability->numProj );
+	if( !ability->velocities )
+	{
+		fprintf( stderr, "ERROR: LoadPoint: can't allocate memory for velocities\n" );
+		return 0;
+	}
+
+	if( strncmp( ability->pattern, "point", 128 ) == 0 )
+	{
+		LoadPoint( ability, filename );
+	}
+	else if( strncmp( ability->pattern, "circle", 128 ) == 0 )
+	{
+		LoadCircle( ability, filename );
+	}
+	else if( strncmp( ability->pattern, "custom", 128 ) == 0 )
+	{
+		LoadCustom( ability, filename );
+	}
+
+	ability->concurrent_num = subnum;
+	/*
 	FILE *abilityfile = NULL;
 	char buf[ 128 ];
 	char pat[ 128 ];
@@ -122,79 +254,234 @@ void LoadAbility( Ability *ability, char *filename, Entity *owner )
 		ability->path = NULL;
 	}
 
-	ability->endTime = 0;
+	ability->endTime = 0;*/
+
+	ability->loaded = 1;
+	ability->inuse = 0;
+
+	fprintf( stdout, "LoadAbility: %s ability %s loaded\n", ability->pattern, ability->name );
+	return 1;
+}
+
+
+int LoadPoint( Ability *ability, char *filename )
+{
+	FILE *file = NULL;
+	char buf[ 128 ];
+	int i;
+	float vx, vy;
+	float angle;
+	float curangle;
+	float decriment;
+
+	file = fopen( filename, "r" );
+
+	while( fscanf( file, "%s", buf ) != EOF )
+	{
+		if( buf[ 0 ] == '#' )
+		{
+			fgets( buf, sizeof( buf ), file );
+		}
+		else if( strncmp( buf, "angle:", 128 ) == 0 )
+		{
+			fscanf( file, "%f", &ability->angle );
+		}
+		else if( strncmp( buf, "cone:", 128 ) == 0 )
+		{
+			fscanf( file, "%f", &ability->cone );
+		} 
+	}
+
+	fclose( file );
+
+	if( !ability->relative )
+	{
+		angle = ability->angle + 90;
+		angle += ( ability->cone / 2 );
+		angle *= TORAD;
+
+		decriment = ability->cone / ( ability->numProj - 1 );
+		decriment *= TORAD;
+
+		for( i = 0; i < ability->numProj; i++ )
+		{
+			curangle = angle - ( decriment * i );
+			
+			vx = ( cos( curangle ) ) * ability->velocity;
+			vy = ( sin( curangle ) ) * ability->velocity;
+
+			ability->velocities[ i ][ 0 ] = vx;
+			ability->velocities[ i ][ 1 ] = vy;
+		}
+	}
+
+	return 1;
+}
+
+
+int LoadCircle( Ability *ability, char *filename )
+{
+	return 1;
+}
+
+
+int LoadCustom( Ability *ability, char *filename )
+{
+	return 1;
+}
+
+
+void FreeAbility( Ability *ability )
+{
+	ability->inuse = 0;
+	ability->loaded = 0;
+
+	if( ability->proj )
+	{
+		FreeSprite( ability->proj );
+	}
+
+	if( ability->concurrent_ability )
+	{
+		FreeAbility( ability->concurrent_ability );
+	}
+	
+	/*
+	if( ability->delimiter )
+	{
+		free( ability->delimiter );
+	}*/
+}
+
+
+void StartAbility( Ability *ability )
+{
+	if( !ability->loaded )
+	{
+		return;
+	}
+
+	if( ability->inuse )
+	{
+		return;
+	}
+
+	ability->inuse = 1;
+
+	if( ability->duration )
+	{
+		ability->endTime = ability->duration + NOW;
+	}
+
+	if( ability->anim )
+	{
+		//change animations
+	}
+
+	cooldown = NOW + ability->cooldown + ability->duration;
+
+	UseAbility( ability );
 }
 
 
 void UseAbility( Ability *ability )
 {
-	ability->nextfire = ability->firerate + NOW;
+	vec2_t firepos;
+	int i;
 
-	if( strncmp( ability->pattern, "point", sizeof( ability->pattern ) ) == 0 )
+	if( !ability->inuse || ability->nextFire > NOW )
 	{
-		PatternPoint( ability );
+		return;
 	}
-	else if( strncmp( ability->pattern, "line", sizeof( ability->pattern ) ) == 0 )
+
+	if( ability->relative )
 	{
-		PatternLine( ability );
+		Vec2Add( ability->position, ability->owner->origin, firepos );
 	}
-	else if( strncmp( ability->pattern, "circle", sizeof( ability->pattern ) ) == 0 )
+	else
 	{
-		PatternCircle( ability );
+		Vec2Copy( ability->position, firepos );
+	}
+	
+	if( strncmp( ability->pattern, "point", 128 ) == 0 )
+	{
+		FirePointAbility( ability, firepos );
+	}
+	else if( strncmp( ability->pattern, "circle", 128 ) == 0 )
+	{
+		FireCircleAbility( ability, firepos );
+	}
+	else if( strncmp( ability->pattern, "custom", 128 ) == 0 )
+	{
+		FireCustomAbility( ability, firepos );
+	}
+
+	for( i = 0; i < ability->concurrent_num; i++ )
+	{
+		UseAbility( &ability->concurrent_ability[ i ] );
+	}
+
+	if( ability->endTime && ability->endTime <= NOW )
+	{
+		EndAbility( ability );
+	}
+	else
+	{
+		ability->nextFire = NOW + ability->fireRate;
 	}
 }
 
 
-void PatternPoint( Ability *ability )
+void EndAbility( Ability *ability )
 {
-	int i, j;
-	int minang, maxang;
-	double ang;
-	vec2_t origin;
-	vec2_t startpos;
-	vec2_t v;
+	ability->inuse = 0;
+	//change animation
+	ability->startTime = 0;
+}
 
-	Vec2Add( ability->owner->position, offset, origin );
 
-	maxang = 90 + ability->cone / 2;
-	minang = maxang - ability->cone;
+void FirePointAbility( Ability *ability, vec2_t firepos )
+{
+	int i;
+	float vx, vy;
+	float angle;
+	float curangle;
+	float decriment;
 
-	for( j = 0; j < ability->numpos; j++ )
+	if( ability->relative )
 	{
-		Vec2Add( origin, ability->pos[ j ], startpos );
+		angle = ability->angle + 90;
+		angle += ( ability->cone / 2 );
+		angle *= TORAD;
+
+		decriment = ability->cone / ( ability->numProj - 1 );
+		decriment *= TORAD;
 
 		for( i = 0; i < ability->numProj; i++ )
 		{
-			ang = rand() % ability->cone;
-			ang += minang;
+			curangle = angle - ( decriment * i );
 
-			Vec2Copy( *CalculateProjectileVelocity( ang, ability->velocity ), v );
+			vx = ( cos( curangle ) ) * ability->velocity;
+			vy = ( sin( curangle ) ) * ability->velocity;
 
-			//InitProjectile( ability->owner, ability->owner->opponent, ability->owner->projectile, startpos, v, ability->fuse, 0 );
+			ability->velocities[ i ][ 0 ] = vx;
+			ability->velocities[ i ][ 1 ] = vy;
 		}
+	}
+
+	for( i = 0; i < ability->numProj; i++ )
+	{	
+		InitProjectile( ability->owner, ability->owner->group, ability->proj, firepos,
+			ability->velocities[ i ], ability->fuse, 0 );
 	}
 }
 
 
-void PatternLine( Ability *ability )
+void FireCircleAbility( Ability *ability, vec2_t firepos )
 {
 }
 
 
-void PatternCircle( Ability *ability )
+void FireCustomAbility( Ability *ability, vec2_t firepos )
 {
-}
-
-
-vec2_t *CalculateProjectileVelocity( int angle, int velocity )
-{
-	double angrad;
-	vec2_t v;
-
-	angrad = ( double )( angle ) * ( PI / 180 );
-
-	v[ 0 ] = ( cos( angrad ) ) * velocity;
-	v[ 1 ] = ( sin( angrad ) ) * velocity;
-
-	return &v;
 }

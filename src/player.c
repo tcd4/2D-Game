@@ -153,6 +153,8 @@ Entity *InitPlayer( char *filename )
 
 	self->position[ 0 ] = ( screen->w / 2 ) - ( self->w / 2 ) - 15;
 	self->position[ 1 ] = screen->h - self->h;
+	self->origin[ 0 ] = self->position[ 0 ] + (self->w / 2 );
+	self->origin[ 1 ] = self->position[ 1 ] + (self->h / 2 );
 
 	self->trapped = 1;
 	self->canCollide = 0;
@@ -277,12 +279,14 @@ void InitFireModeList()
 	{
 		ClearFireModeList();
 	}
+	else
+	{
+		__modeList = ( FireMode *)malloc( sizeof( FireMode ) * MAX_FIRE_MODES );
+	}
 
-	__modeList = ( FireMode *)malloc( sizeof( FireMode ) * MAX_FIRE_MODES );
-
-    if ( __modeList == NULL )
+    if ( !__modeList )
     {
-        fprintf( stderr, "FATAL: InitEntntList: cannot allocate entity list\n" );
+        fprintf( stderr, "FATAL: InitFireModeList: cannot allocate firing mode list\n" );
         exit( -1 );
     }
 

@@ -43,6 +43,7 @@ int LoadFiringMode( FireMode *mode, char *filename )
 		else if( strncmp( buf, "projectile:", 128 ) == 0 )
 		{
 			fscanf( file, "%s", path );
+			mode->proj = LoadSprite( path, w, h, fpl );
 		}
 		else if( strncmp( buf, "framesperline:", 128 ) == 0 )
 		{
@@ -51,7 +52,6 @@ int LoadFiringMode( FireMode *mode, char *filename )
 		else if( strncmp( buf, "size:", 128 ) == 0 )
 		{
 			fscanf( file, "%i,%i", &w, &h );
-			mode->proj = LoadSprite( path, w, h, fpl );
 		}
 		else if( strncmp( buf, "position:", 128 ) == 0 )
 		{

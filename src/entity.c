@@ -185,19 +185,23 @@ void MoveEnt( Entity *ent )
 		if( ent->position[ 0 ] < 0 )
 		{
 			ent->position[ 0 ] = 0;
+			ent->origin[ 0 ] = ent->w / 2;
 		}
 		else if( ( ent->position[ 0 ] + ent->w ) > screen->w )
 		{
 			ent->position[ 0 ] = screen->w - ent->w;
+			ent->origin[ 0 ] = screen->w - ( ent->w / 2 );
 		}
 
 		if( ent->position[ 1 ] < 0 )
 		{
 			ent->position[ 1 ] = 0;
+			ent->origin[ 1 ] = ent->h / 2;
 		}
 		else if( ( ent->position[ 1 ] + ent->h ) > screen->h )
 		{
 			ent->position[ 1 ] = screen->h - ent->h;
+			ent->origin[ 1 ] = screen->h - ( ent->h / 2 );
 		}
 	}
 }

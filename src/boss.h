@@ -11,6 +11,7 @@
 #include "entity.h"
 
 
+#define MAX_ABILITIES 10
 /**
  * @brief initializes the boss
  *
@@ -19,6 +20,16 @@
  * @return a pointer to the boss entity
  */
 Entity *InitBoss( char *filename );
+
+/**
+ * @brief initializes the ability list
+ */
+void InitAbilityList();
+
+/**
+ * @brief frees all abilities in the ability list
+ */
+void ClearAbilityList();
 
 /**
  * @brief loads the specified boss

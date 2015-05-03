@@ -32,12 +32,14 @@ Entity *InitPlayer( char *filename );
  */
 int LoadPlayer( Entity *self, char *filename);
 
+
 /**
  * @brief checks the input to adjust the player
  *
  * @param self a pointer to the player entity
  */
 void CheckInput( Entity *self );
+
 
 /**
  * @brief initializes the firing mode list
@@ -48,6 +50,7 @@ void InitFireModeList();
  * @brief clears the firing mode list and frees the firing modes
  */
 void ClearFireModeList();
+
 
 /**
  * @brief switches to the next firing mode

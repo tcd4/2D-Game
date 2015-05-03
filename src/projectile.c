@@ -39,42 +39,12 @@ void InitProjectile( Entity *owner, int group, Sprite *sprite, vec2_t pos, vec2_
 
 	self->visible = 1;
 	self->self = self;
-	/*
-	Entity *self = NULL;
-
-	self = NewEnt();
-	if( self == NULL )
-	{
-		fprintf( stderr, "InitProjectile: ERROR: reached ent cap\n" );
-		return;
-	}
-
-//	self->name = "projectile";
-
-	self->self = self;
-	self->owner = owner;
-
-	self->sprite = sprite;
-	self->visible = 1;
-
-	self->w = self->sprite->w;
-	self->h = self->sprite->h;
-
-	Vec2Copy( pos, self->position );
-	Vec2Copy( v, self->velocity );
-
-	self->Move = ProjectileMove;
 
 	if( fuse )
 	{
-		self->nextthink = NOW + fuse;
+		self->Think = FreeEnt;
+		self->thinkrate = fuse;
 	}
-	else
-	{
-		self->nextthink = NOW + 5000;
-	}
-
-	self->Think = FreeEnt;*/
 }
 
 

@@ -10,31 +10,58 @@
 
 
 #include "entity.h"
-#include "boss.h"
+#include "delimiter.h"
 
 
 typedef struct ability_s
 {
-	Entity			*owner;		/**< pointer to the owner of the ability */
-	int				inuse;		/**< determines if the ability is being used */
-	int				lock;		/**< determines if other abilities can be used during an ability */
+	Entity				*owner;						/**< pointer to the owner of the ability */
+	char				name[ TYPE_NAME_LEN ];		/**< the name of the ability */
+	int					inuse;						/**< determines if the ability is being used */
+	int					loaded;						/**< determines if the ability is loaded */
 
-	char			*pattern;	/**< the pattern of the projectiles */
-	int				numProj;	/**< the number of projectiles fired */
-	int				cone;		/**< the angle the projectiles are fired within */
-	int				velocity;	/**< the velocity of the projectiles */
+	char				anim[ TYPE_NAME_LEN ];		/**< the animation played during the ability */
+	Sprite				*proj;						/**< the projectile the ability uses */
+
+	int					concurrent_num;				/**< the number of concurrent abilities */
+	struct ability_s	*concurrent_ability;		/**< abilities that are used simultaneously */
+
+	int					relative;					/**< determines if the ability position is relative to the boss' position or the screen */
+	vec2_t				position;						/**< the position of the ability's origin */
+	float				velocity;					/**< the velocity of projectiles */
+	vec2_t				*velocities;				/**< the vector velocities of each projectile */
+
+	Uint32				duration;					/**< the duration of the ability */
+	Uint32				cooldown;					/**< the time it takes for the owner to be able to use another ability */
+	Uint32				fireRate;					/**< how often the ability is used during the duration */
+	Uint32				nextFire;					/**< the next time the ability will be used during the duration */
+	Uint32				startTime;					/**< when the ability begins */
+	Uint32				endTime;					/**< when the ability ends */
+
+	int					numProj;					/**< the number of projectiles fired */
+	Uint32				fuse;						/**< the duration projectiles last for */
+	
+
+	char				pattern[ TYPE_NAME_LEN ];	/**< the pattern of the projectiles */
+
+	/* point variables */
+	float				angle;						/**< the angle projectiles are fired at */
+	float				cone;						/**< the cone of fire for multiple angles */
+
+
+
+
+	
+	
 	int				radius;		/**< the radius of the pattern */
 
-	vec2_t			*pos;		/**< the position projectiles are fired from relative to the owner */
-	int				numpos;		/**< the number of positions */
-
-	Uint32			duration;	/**< the duration of the ability */
-	Uint32			startTime;	/**< when the ability begins */
-	Uint32			endTime;	/**< when the ability ends */
-	Uint32			firerate;	/**< how often the ability is used during the duration */
-	Uint32			nextfire;	/**< the next time the ability will be used during the duration */
-	Uint32			fuse;		/**< the duration projectiles last for */
-	Uint32			cooldown;	/**< the time it takes for the owner to use another ability */
+	
+	
+	
+	
+	
+	
+	
 
 	char			*delimiter;	/**< declares what determines the next stage of the abilty */
 	
@@ -49,46 +76,89 @@ typedef struct ability_s
  * @param ability a pointer to the ability
  * @param filename the file name and path to the ability def file
  * @param owner a pointer to the owner of the ability
+ *
+ * @return 1 if ability loaded and 0 if else
  */
-void LoadAbility( Ability *ability, char *filename, Entity *owner );
+int LoadAbility( Ability *ability, char *filename, Entity *owner );
 
 /**
- * @brief use an ability
+ * @brief loads a point pattern ability
  *
- * @param ability a pointer to the ability
+ * @param ability the ability to load
+ * @param filename the file name and path to the ability def file
+ */
+int LoadPoint( Ability *ability, char *filename );
+
+/**
+ * @brief loads a circle pattern ability
+ *
+ * @param ability the ability to load
+ * @param filename the file name and path to the ability def file
+ */
+int LoadCircle( Ability *ability, char *filename );
+
+/**
+ * @brief loads a custom pattern ability
+ *
+ * @param ability the ability to load
+ * @param filename the file name and path to the ability def file
+ */
+int LoadCustom( Ability *ability, char *filename );
+
+
+/**
+ * @brief frees an ability
+ *
+ * @param ability the ability to free
+ */
+void FreeAbility( Ability *ability );
+
+
+/**
+ * @brief starts an ability
+ *
+ * @param ability the ability to start
+ */
+void StartAbility( Ability *ability );
+
+/**
+ * @brief uses an ability
+ *
+ * @param ability the ability to use
  */
 void UseAbility( Ability *ability );
 
 /**
- * @brief uses an ability that has a point pattern
+ * @brief ends and resets an ability
  *
- * @param ability a pointer to the ability being used
+ * @param ability the ability to end
  */
-void PatternPoint( Ability *ability );
+void EndAbility( Ability *ability );
+
 
 /**
- * @brief uses an ability that has a circle pattern
+ * @brief fires an ability that has a point pattern
  *
- * @param ability a pointer to the ability being used
+ * @param ability the ability to fire
+ * @param firepos the firing position
  */
-void PatternCircle( Ability *ability );
+void FirePointAbility( Ability *ability, vec2_t firepos );
 
 /**
- * @brief uses an ability that has a line pattern
+ * @brief fires an ability that has a circle pattern
  *
- * @param ability a pointer to the ability being used
+ * @param ability the ability to fire
+ * @param firepos the firing position
  */
-void PatternLine( Ability *ability );
+void FireCircleAbility( Ability *ability, vec2_t firepos );
 
 /**
- * @brief calculates the velocity of a projectile
+ * @brief fires an ability that has a custom pattern
  *
- * @param angle the angle in degrees that the projectile is fired at
- * @param velocity the velocity the projectile is fired at
- *
- * @return a pointer to the velocity vector
+ * @param ability the ability to fire
+ * @param firepos the firing position
  */
-vec2_t *CalculateProjectileVelocity( int angle, int velocity );
+void FireCustomAbility( Ability *ability, vec2_t firepos );
 
 
 #endif
