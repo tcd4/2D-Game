@@ -301,6 +301,10 @@ void CheckAbilities( Entity *self )
 		{
 			UseAbility( &__abilityList[ i ] );
 		}
+		else if( __abilityList[ i ].startTime && __abilityList[ i ].startTime <= NOW )
+		{
+			StartAbility( &__abilityList[ i ] );
+		}
 	}
 	/*
 	int i;

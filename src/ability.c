@@ -99,6 +99,7 @@ int LoadAbility( Ability *ability, char *filename, Entity *owner )
 		else if( strncmp( buf, "start_time:", 128 ) == 0 )
 		{
 			fscanf( file, "%i", &ability->startTime );
+			ability->startTime += NOW;
 		}
 		else if( strncmp( buf, "ability:", 128 ) == 0 )
 		{
@@ -356,6 +357,8 @@ void FreeAbility( Ability *ability )
 
 void StartAbility( Ability *ability )
 {
+	int i;
+
 	if( !ability->loaded )
 	{
 		return;
@@ -380,6 +383,11 @@ void StartAbility( Ability *ability )
 
 	cooldown = NOW + ability->cooldown + ability->duration;
 
+	for( i = 0; i < ability->concurrent_num; i++ )
+	{
+		ability->concurrent_ability[ i ].inuse = 1;
+	}
+
 	UseAbility( ability );
 }
 
@@ -388,6 +396,11 @@ void UseAbility( Ability *ability )
 {
 	vec2_t firepos;
 	int i;
+
+	for( i = 0; i < ability->concurrent_num; i++ )
+	{
+		UseAbility( &ability->concurrent_ability[ i ] );
+	}
 
 	if( !ability->inuse || ability->nextFire > NOW )
 	{
@@ -416,11 +429,6 @@ void UseAbility( Ability *ability )
 		FireCustomAbility( ability, firepos );
 	}
 
-	for( i = 0; i < ability->concurrent_num; i++ )
-	{
-		UseAbility( &ability->concurrent_ability[ i ] );
-	}
-
 	if( ability->endTime && ability->endTime <= NOW )
 	{
 		EndAbility( ability );
@@ -434,9 +442,17 @@ void UseAbility( Ability *ability )
 
 void EndAbility( Ability *ability )
 {
+	int i;
 	ability->inuse = 0;
 	//change animation
 	ability->startTime = 0;
+	ability->endTime = 0;
+	ability->nextFire = 0;
+
+	for( i = 0; i < ability->concurrent_num; i++ )
+	{
+		ability->concurrent_ability[ i ].inuse = 0;
+	}
 }
 
 
