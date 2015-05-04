@@ -228,3 +228,17 @@ int OutOfBounds( Entity *ent )
 
 	return 0;
 }
+
+
+void ChangeState( Entity *ent, char *state )
+{
+	int i;
+
+	for( i = 0; i < MAX_ACTORS; i++ )
+	{
+		if( ent->actors[ i ] && ( strcmp( state, ent->actors[ i ]->action ) == 0 ) )
+		{
+			ent->state = i;
+		}
+	}
+}

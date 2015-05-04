@@ -135,4 +135,12 @@ void MoveEnt( Entity *ent );
  */
 int OutOfBounds( Entity *ent );
 
+/**
+ * @brief changes the animation state of the entity
+ *
+ * @param ent the entity to change
+ * @param state the state to change to
+ */
+void ChangeState( Entity *ent, char *state );
+
 #endif

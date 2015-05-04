@@ -295,9 +295,9 @@ void StartAbility( Ability *ability )
 		ability->endTime = ability->duration + NOW;
 	}
 
-	if( ability->anim )
+	if( strncmp( ability->anim, "", 128 ) != 0 )
 	{
-		//change animations
+		ChangeState( ability->owner, ability->anim );
 	}
 
 	cooldown = NOW + ability->cooldown + ability->duration;
@@ -367,6 +367,11 @@ void EndAbility( Ability *ability )
 	ability->startTime = 0;
 	ability->endTime = 0;
 	ability->nextFire = 0;
+
+	if( strncmp( ability->anim, "", 128 ) != 0 )
+	{
+		ChangeState( ability->owner, "idle" );
+	}
 
 	for( i = 0; i < ability->concurrent_num; i++ )
 	{

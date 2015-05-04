@@ -306,31 +306,6 @@ void CheckAbilities( Entity *self )
 			StartAbility( &__abilityList[ i ] );
 		}
 	}
-	/*
-	int i;
-
-	for( i = 0; i < __numAbilities; i++ )
-	{		
-		//use abilities that are being used or abilities that are supposed to start
-		if( abilityList[ i ].inuse )
-		{
-			//make sure the ability hasn't ended
-			if( ( abilityList[ i ].endTime ) && ( abilityList[ i ].endTime <= NOW ) )
-			{
-				StopAbility( self, i );
-				continue;
-			}
-
-			if( ( abilityList[ i ].nextfire ) && ( abilityList[ i ].nextfire <= NOW ) )
-			{
-				UseAbility( &abilityList[ i ] );
-			}
-		}
-		else if( ( abilityList[ i ].startTime ) && ( abilityList[ i ].startTime <= NOW ) )
-		{
-			UseAbility( &abilityList[ i ] );
-		}
-	}*/
 }
 
 
@@ -360,29 +335,6 @@ void UseRandomAbility( Entity *self )
 			//EndAbilities();
 			UseAbility( &abilityList[ i ] );
 		}
-	}*/
-}
-
-
-void StopAbility( Entity *self, int index )
-{/*
-	abilityList[ index ].inuse = 0;
-	abilityList[ index ].startTime = 0;
-	lock -= abilityList[ index ].lock;
-	self->movetype = MOVE_RANDOM;*/
-}
-
-
-void EndAbilities()
-{/*
-	int i;
-
-	for( i = 0; i < __numAbilities; i++ )
-	{
-		if( abilityList[ i ].duration != -1 )
-		{
-			abilityList[ i ].inuse = 0;
-		}	
 	}*/
 }
 
