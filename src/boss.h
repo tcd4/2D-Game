@@ -53,13 +53,6 @@ void CalculateVelocity( Entity *self );
 void CheckAbilities( Entity *self );
 
 /**
- * @brief causes the boss to use a random ability from available abilities
- *
- * @param self a pointer to the boss entity
- */
-void UseRandomAbility( Entity *self );
-
-/**
  * @brief stops a specific ability
  *
  * @param self a pointer to the boss entity
@@ -78,8 +71,8 @@ void EndAbilities();
 void EndAllAbilities();
 
 /**
- * @brief unlocks the lock on ability use
+ * @brief picks an ability to use
  */
-void Unlock();
+void PickAbility();
 
 #endif

@@ -14,6 +14,7 @@ static int __moveSpeed;
 static Ability * __abilityList = NULL;
 
 
+Uint32 lock = 0;
 Uint32 cooldown = 0;
 
 
@@ -282,9 +283,9 @@ void CalculateVelocity( Entity *self )
 
 void BossThink( Entity *self )
 {
-	if( cooldown < NOW )
+	if( !lock && cooldown < NOW )
 	{
-		StartAbility( &__abilityList[ 0 ] );
+		PickAbility();
 	}
 
 	CheckAbilities( self );
@@ -301,13 +302,37 @@ void CheckAbilities( Entity *self )
 		{
 			UseAbility( &__abilityList[ i ] );
 		}
-		else if( __abilityList[ i ].startTime && __abilityList[ i ].startTime <= NOW )
+		else if( __abilityList[ i ].startTime && __abilityList[ i ].startTime <= NOW && !__abilityList[ i ].inuse )
 		{
 			StartAbility( &__abilityList[ i ] );
 		}
 	}
 }
 
+
+void PickAbility()
+{
+	int i;
+	float num;
+
+	for( i = 0; i < MAX_ABILITIES; i++ )
+	{
+		if( __abilityList[ i ].loaded && !__abilityList[ i ].inuse && !__abilityList[ i ].startTime )
+		{
+			num = crandom();
+			
+			if( num > 0.000000 )
+			{
+				StartAbility( &__abilityList[ i ] );
+				break;
+			}
+			else
+			{
+				i++;
+			}
+		}
+	}
+}
 
 void UseRandomAbility( Entity *self )
 {/*

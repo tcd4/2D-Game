@@ -7,6 +7,7 @@
 extern SDL_Surface *screen;
 extern Uint32 NOW;
 extern Uint32 cooldown;
+extern Uint32 lock;
 
 
 int LoadAbility( Ability *ability, char *filename, Entity *owner )
@@ -122,7 +123,11 @@ int LoadAbility( Ability *ability, char *filename, Entity *owner )
 		else if( strncmp( buf, "radius:", 128 ) == 0 )
 		{
 			fscanf( file, "%f", &ability->radius );
-		} 
+		}
+		else if( strncmp( buf, "lock:", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &ability->lock );
+		}
 	}
 
 	fclose( file );
@@ -150,7 +155,7 @@ int LoadAbility( Ability *ability, char *filename, Entity *owner )
 	}
 	else if( strncmp( ability->pattern, "custom", 128 ) == 0 )
 	{
-		LoadCustom( ability );
+		LoadCustom( ability, filename );
 	}
 
 	ability->concurrent_num = subnum;
@@ -162,7 +167,7 @@ int LoadAbility( Ability *ability, char *filename, Entity *owner )
 }
 
 
-int LoadPoint( Ability *ability, char *filename )
+int LoadPoint( Ability *ability )
 {
 	int i;
 	float vx, vy;
@@ -195,7 +200,7 @@ int LoadPoint( Ability *ability, char *filename )
 }
 
 
-int LoadCircle( Ability *ability, char *filename )
+int LoadCircle( Ability *ability )
 {
 	int i;
 	float angle;
@@ -245,7 +250,69 @@ int LoadCircle( Ability *ability, char *filename )
 
 int LoadCustom( Ability *ability, char *filename )
 {
+	int i = 0;
+	FILE *file = NULL;
+	char buf[ 128 ];
+	float angle;
+	float x, y;
 
+	ability->positions = ( vec2_t * )malloc( sizeof( vec2_t ) * ability->numProj );
+	if( !ability->positions )
+	{
+		fprintf( stderr, "ERROR: LoadPoint: can't allocate memory for positions\n" );
+		return 0;
+	}
+
+	ability->base = ( vec2_t * )malloc( sizeof( vec2_t ) * ability->numProj );
+	if( !ability->positions )
+	{
+		fprintf( stderr, "ERROR: LoadPoint: can't allocate memory for base positions\n" );
+		return 0;
+	}
+
+	ability->angles = ( float * )malloc( sizeof( float ) * ability->numProj );
+	if( !ability->angles )
+	{
+		fprintf( stderr, "ERROR: LoadCustom: can't allocate memory for angles\n" );
+		return 0;
+	}
+
+	file = fopen( filename, "r" );
+
+	while( fscanf( file, "%s", buf ) != EOF )
+	{
+		if( buf[ 0 ] == '#' )
+		{
+			fgets( buf, sizeof( buf ), file );
+		}
+		else if( strncmp( buf, "p:", 128 ) == 0 )
+		{
+			fscanf( file, "%f,%f", &x, &y );
+			ability->base[ i ][ 0 ] = x;
+			ability->base[ i ][ 1 ] = y;
+		}
+		else if( strncmp( buf, "a:", 128 ) == 0 )
+		{
+			fscanf( file, "%f", &angle );
+			ability->angles[ i ] = angle;
+			i++;
+		}
+	}
+
+	fclose( file );
+
+	for( i = 0; i < ability->numProj; i++ )
+	{
+		angle = ( ability->angles[ i ] + 90 ) * TORAD;
+		ability->velocities[ i ][ 0 ] = cos( angle ) * ability->velocity;
+		ability->velocities[ i ][ 1 ] = sin( angle ) * ability->velocity;
+
+		if( !ability->relative )
+		{
+			ability->base[ i ][ 0 ] = screen->w * ( ability->base[ i ][ 0 ] / 100.00 );
+			ability->base[ i ][ 1 ] = screen->h * ( ability->base[ i ][ 1 ] / 100.00 );
+		}
+	}
 
 	return 1;
 }
@@ -300,12 +367,17 @@ void StartAbility( Ability *ability )
 		ChangeState( ability->owner, ability->anim );
 	}
 
-	cooldown = NOW + ability->cooldown + ability->duration;
-
 	for( i = 0; i < ability->concurrent_num; i++ )
 	{
 		ability->concurrent_ability[ i ].inuse = 1;
 	}
+
+	if( ability->lock )
+	{
+		lock = 1;
+	}
+
+	ability->currentFire = 0;
 
 	UseAbility( ability );
 }
@@ -356,17 +428,29 @@ void UseAbility( Ability *ability )
 	{
 		ability->nextFire = NOW + ability->fireRate;
 	}
+
+	if( ability->currentFire >= ability->numProj )
+	{
+		EndAbility( ability );
+	}
 }
 
 
 void EndAbility( Ability *ability )
 {
 	int i;
+
 	ability->inuse = 0;
-	//change animation
 	ability->startTime = 0;
 	ability->endTime = 0;
 	ability->nextFire = 0;
+
+	if( ability->lock )
+	{
+		lock = 0;
+	}
+
+	cooldown = NOW + ability->cooldown;
 
 	if( strncmp( ability->anim, "", 128 ) != 0 )
 	{
@@ -436,4 +520,44 @@ void FireCircleAbility( Ability *ability, vec2_t firepos )
 
 void FireCustomAbility( Ability *ability, vec2_t firepos )
 {
+	int i;
+
+	if( ability->fireRate )
+	{
+		if( ability->relative )
+		{
+			Vec2Add( firepos, ability->base[ ability->currentFire ], ability->positions[ ability->currentFire ] );
+		
+			InitProjectile( ability->owner, ability->owner->group, ability->proj, 
+				ability->positions[ ability->currentFire ], ability->velocities[ ability->currentFire ], ability->fuse, 0 );
+
+		}
+		else
+		{
+			InitProjectile( ability->owner, ability->owner->group, ability->proj, 
+				ability->base[ ability->currentFire ], ability->velocities[ ability->currentFire ], ability->fuse, 0 );
+		}
+		ability->currentFire++;
+	}
+	else
+	{
+		for( i = 0; i < ability->numProj; i++ )
+		{
+			if( ability->relative )
+			{
+				Vec2Add( firepos, ability->base[ i ], ability->positions[ i ] );
+		
+				InitProjectile( ability->owner, ability->owner->group, ability->proj, 
+					ability->positions[ i ], ability->velocities[ i ], ability->fuse, 0 );
+
+			}
+			else
+			{
+				InitProjectile( ability->owner, ability->owner->group, ability->proj, 
+					ability->base[ i ], ability->velocities[ i ], ability->fuse, 0 );
+			}
+		}
+
+		ability->currentFire = ability->numProj + 1;
+	}
 }

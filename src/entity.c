@@ -238,6 +238,7 @@ void ChangeState( Entity *ent, char *state )
 	{
 		if( ent->actors[ i ] && ( strcmp( state, ent->actors[ i ]->action ) == 0 ) )
 		{
+			ResetActor( ent->actors[ i ] );
 			ent->state = i;
 		}
 	}

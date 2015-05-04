@@ -37,7 +37,7 @@ typedef struct ability_s
 	Uint32				nextFire;					/**< the next time the ability will be used during the duration */
 	Uint32				startTime;					/**< when the ability begins */
 	Uint32				endTime;					/**< when the ability ends */
-
+	Uint32				lock;						/**< determines if the ability prevents other abilities from being used */
 	int					numProj;					/**< the number of projectiles fired */
 	Uint32				fuse;						/**< the duration projectiles last for */
 	
@@ -50,11 +50,12 @@ typedef struct ability_s
 
 	/* circle variables */
 	float				radius;						/**< the radius of the circle */
-	vec2_t				*base;						/**< the base positions the circle uses */
-	vec2_t				*positions;					/**< the positions the projectiles start at around the circle */
+	vec2_t				*base;						/**< the base positions */
+	vec2_t				*positions;					/**< the positions the projectiles start at */
 
-	
-	
+	/* custom variables */
+	float				*angles;					/**< the angles to fire at */
+	int					currentFire;				/**< the projectile to fire at the moment */
 	
 
 	
@@ -101,8 +102,9 @@ int LoadCircle( Ability *ability );
  * @brief loads a custom pattern ability
  *
  * @param ability the ability to load
+ * @param filename the filename and path of the def file
  */
-int LoadCustom( Ability *ability );
+int LoadCustom( Ability *ability, char *filename );
 
 
 /**
