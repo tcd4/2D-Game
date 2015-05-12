@@ -90,9 +90,9 @@
     <ClInclude Include="src\actor.h" />
     <ClInclude Include="src\audio.h" />
     <ClInclude Include="src\boss.h" />
-    <ClInclude Include="src\delimiter.h" />
     <ClInclude Include="src\entity.h" />
     <ClInclude Include="src\firingmode.h" />
+    <ClInclude Include="src\game.h" />
     <ClInclude Include="src\graphics.h" />
     <ClInclude Include="src\level.h" />
     <ClInclude Include="src\mouse.h" />

@@ -10,7 +10,28 @@
 
 
 #include "entity.h"
-#include "delimiter.h"
+
+
+typedef struct delimiter_s
+{
+	struct ability_s	*owner;					/**< the ability that uses the delimiter */
+	int					inuse;					/**< determines if the delimiter is being used */
+	char				type[ TYPE_NAME_LEN ];	/**< the type of delimiter */
+	int					uses;					/**< the number of uses for the delimiter */
+	int					totalUses;				/**< the total number of uses for the delimiter */
+
+	int					numProj;				/**< the change in number of projectiles */
+	float				velocity;				/**< the change in velocity for projectiles */
+
+	Uint32				duration;				/**< the change in duration */
+	Uint32				fireRate;				/**< the change in fire rate*/
+	Uint32				fuse;					/**< the change in fuse time */
+	Uint32				cooldown;				/**< the change in cooldown */
+		
+	float				cone;					/**< the change in the cone of fire */
+	float				radius;					/**< the change in the radius */
+	float				angle;					/**< the change in the angle */
+}Delimiter;
 
 
 typedef struct ability_s
@@ -57,19 +78,7 @@ typedef struct ability_s
 	float				*angles;					/**< the angles to fire at */
 	int					currentFire;				/**< the projectile to fire at the moment */
 	
-
-	
-	
-	
-	
-	
-	
-	
-
-	char			*delimiter;	/**< declares what determines the next stage of the abilty */
-	
-	Move_Type		movement;	/**< where the owner will move during the ability */
-	struct path_s	*path;		/**< the path the owner will take while using the ability */
+	Delimiter			*delimiter;					/**< the ability's delimiter */
 }Ability;
 
 
@@ -160,6 +169,21 @@ void FireCircleAbility( Ability *ability, vec2_t firepos );
  * @param firepos the firing position
  */
 void FireCustomAbility( Ability *ability, vec2_t firepos );
+
+
+/**
+ * @brief checks to see if the delimiter should be used
+ *
+ * @param ability the ability whose delimiter we need to check
+ */
+void CheckDelimiter( Ability *ability );
+
+/**
+ * @brief adds the delimiter to the ability and reloads the ability
+ *
+ * @param ability the ability to add to
+ */
+void AddDelimiter( Ability *ability );
 
 
 #endif

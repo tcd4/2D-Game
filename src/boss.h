@@ -61,18 +61,18 @@ void CheckAbilities( Entity *self );
 void StopAbility( Entity *self, int index );
 
 /**
- * @brief stops all abilities that can be stopped
+ * @brief stops all abilities
  */
 void EndAbilities();
-
-/**
- * @brief stops all abilities that can be stopped
- */
-void EndAllAbilities();
 
 /**
  * @brief picks an ability to use
  */
 void PickAbility();
+
+/**
+ * @brief displays the boss' health on the screen
+ */
+void DrawHealth();
 
 #endif

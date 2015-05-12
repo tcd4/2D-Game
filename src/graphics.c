@@ -14,9 +14,11 @@ struct
 SDL_Surface *screen;		/**< pointer to the draw buffer */
 SDL_Surface *buffer;		/**< pointer to the background image buffer */
 SDL_Surface *videobuffer;	/**< pointer to the actual video surface */
+TTF_Font *font;
 SDL_Rect Camera;			/**< x & y are the coordinates for the background map, w and h are of the screen */
 Uint32 NOW;					/**< the current time since program started */
 Uint32 FRAME;
+
 
 /*some data on the video settings that can be useful for a lot of functions*/
 Uint32 rmask, gmask, bmask, amask;
@@ -106,6 +108,23 @@ void Init_Graphics()
     SDL_ShowCursor( SDL_DISABLE );/*don't show the mouse */
     SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL );
 	FRAME = 0;
+
+	if( !TTF_Init() )
+	{
+		atexit( TTF_Quit );
+	}
+	else
+	{
+		fprintf( stderr, "FATAL: couldn't init font\n" );
+		exit( 1 );
+	}
+
+	font = TTF_OpenFont( "fonts/Trebuchet_MS_Italic.ttf", 14 );
+	if( !font )
+	{
+		fprintf( stderr, "FATAL: couldn't load font\n" );
+		exit( 1 );
+	}
 }
 
 
@@ -125,6 +144,7 @@ void NextFrame()
 	/*  fprintf(stdout,"Ticks passed this frame: %i\n", NOW - Then);*/
 	FrameDelay( 33 ); /*this will make your frame rate about 30 frames per second.  If you want 60 fps then set it to about 15 or 16*/
 }
+
 
 
 

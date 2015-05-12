@@ -144,7 +144,7 @@ void UpdateEnts()
 	{
 		if( __entList[ i ].inuse )
 		{
-			if( ( __entList[ i ].Think ) && ( !( FRAME % __entList[ i ].thinkrate ) ) )
+			if( ( __entList[ i ].Think ) && (  __entList[ i ].nextThink < NOW ) )
 			{
 				__entList[ i ].Think( &__entList[ i ] );
 			}		
@@ -161,14 +161,11 @@ void MoveEnts()
 	{
 		if( __entList[ i ].inuse )
 		{
-			if( !( Vec2Zeroed( __entList[ i ].velocity ) ) )
-			{
-				MoveEnt( &__entList[ i ] );
+			MoveEnt( &__entList[ i ] );
 
-				if( __entList[ i ].Move )
-				{
-					__entList[ i ].Move( &__entList[ i ] );
-				}
+			if( __entList[ i ].Move )
+			{
+				__entList[ i ].Move( &__entList[ i ] );
 			}
 		}
 	}
@@ -179,6 +176,11 @@ void MoveEnt( Entity *ent )
 {
 	Vec2Add( ent->position, ent->velocity, ent->position );
 	Vec2Add( ent->origin, ent->velocity, ent->origin );
+
+	if( ent->canCollide )
+	{
+		CheckForCollision( ent );
+	}
 
 	if( ent->trapped )
 	{
@@ -241,5 +243,26 @@ void ChangeState( Entity *ent, char *state )
 			ResetActor( ent->actors[ i ] );
 			ent->state = i;
 		}
+	}
+}
+
+
+void CheckForCollision( Entity *ent )
+{
+	int i;
+
+	for( i = 0; i < numEnts; i++ )
+	{
+		if( ( strncmp( __entList[ i ].name, "projectile", TYPE_NAME_LEN ) != 0 ) && !( ent->group & __entList[ i ].group ) )
+		{
+			if( ( ent->position[ 0 ] >= __entList[ i ].bbox[ 0 ] ) && ( ent->position[ 0 ] <= __entList[ i ].bbox[ 0 ] + __entList[ i ].bbox[ 2 ] ) )
+			{
+				if( ( ent->position[ 1 ] >= __entList[ i ].bbox[ 1 ] ) && ( ent->position[ 1 ] <= __entList[ i ].bbox[ 1 ] + __entList[ i ].bbox[ 3 ] ) )
+				{
+					ent->Touch( ent, &__entList[ i ] );
+					__entList[ i ].Touch( &__entList[ i ], ent );
+				}
+			}
+		}		
 	}
 }
