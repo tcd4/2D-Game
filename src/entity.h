@@ -45,12 +45,14 @@ typedef struct entity_s
 	Uint32			movetype;				/**< move direction of the entity */
 
 	int				health;					/**< how much health an entity has */
+	int				maxHealth;				/**< max health an entity can have */
 	int				damage;					/**< how much damage an entity does */
 	
 	int				visible;				/**< determines if the entity can be seen or not */
 	int				deadflag;				/**< determines if the entity has died */
 
 	Uint32			thinkrate;				/**< determines how often the entity thinks */
+	Uint32			nextThink;				/**< determines when the entity will think next */
 
 	void			( *Draw )( struct entity_s *self );								/**< pointer to the entity's draw function */
 	void			( *Free )( struct entity_s *self );								/**< pointer to the entity's free function */
@@ -142,5 +144,12 @@ int OutOfBounds( Entity *ent );
  * @param state the state to change to
  */
 void ChangeState( Entity *ent, char *state );
+
+/**
+ * @brief checks if an entity collide with another entity
+ *
+ * @param ent the entity to check
+ */
+void CheckForCollision( Entity *ent );
 
 #endif

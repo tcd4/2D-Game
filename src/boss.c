@@ -7,6 +7,7 @@
 
 extern SDL_Surface *screen;
 extern Uint32 NOW;
+extern TTF_Font *font;
 
 
 static int __moveRate;
@@ -152,6 +153,7 @@ Entity *InitBoss( char *filename )
 	self->deadflag = 0;
 	self->thinkrate = 1;
 	self->state = 0;
+	self->maxHealth = self->health;
 
 	self->Draw = BossDraw;
 	self->Think = BossThink;
@@ -167,7 +169,11 @@ Entity *InitBoss( char *filename )
 	self->position[ 1 ] = 50;
 	self->origin[ 0 ] = self->position[ 0 ] + (self->w / 2 );
 	self->origin[ 1 ] = self->position[ 1 ] + (self->h / 2 );
-	
+	self->bbox[ 0 ] = self->position[ 0 ];
+	self->bbox[ 1 ] = self->position[ 1 ];
+	self->bbox[ 2 ] = self->w;
+	self->bbox[ 3 ] = self->h;
+
 	self->trapped = 1;
 	self->canCollide = 0;
 	self->group = 4;
@@ -216,7 +222,10 @@ void ClearAbilityList()
 
 
 void BossMove( Entity *self )
-{/*
+{
+	self->bbox[ 0 ] = self->position[ 0 ];
+	self->bbox[ 1 ] = self->position[ 1 ];
+	/*
 	vec2_t check;
 
 	//make sure we can move
@@ -334,35 +343,6 @@ void PickAbility()
 	}
 }
 
-void UseRandomAbility( Entity *self )
-{/*
-	int i;
-
-	if( ( cooldown < NOW ) && ( !lock ) )
-	{
-		i = rand() % __numAbilities;
-
-		//make sure the ability can be used 
-		if( ( !abilityList[ i ].inuse ) || ( abilityList[ i ].startTime >= NOW ) )
-		{
-			cooldown = NOW + abilityList[ i ].cooldown + abilityList[ i ].duration;
-			lock = abilityList[ i ].lock;
-			self->movetype = abilityList[ i ].movement;
-			//self->path = ClearPathing( self->path );
-
-			abilityList[ i ].inuse = 1;
-			abilityList[ i ].startTime = NOW;
-			if( abilityList[ i ].duration != -1 )
-			{
-				abilityList[ i ].endTime = NOW + abilityList[ i ].duration;
-			}
-		
-			//EndAbilities();
-			UseAbility( &abilityList[ i ] );
-		}
-	}*/
-}
-
 
 void EndAllAbilities()
 {/*
@@ -383,14 +363,47 @@ void BossFree( Entity *self )
 void BossDraw( Entity *self )
 {
 	int f;
+	char message[ 10 ];
+	SDL_Surface *temp;
+	SDL_Surface *txt;
+	SDL_Rect src, dest;
+	SDL_Color c1, c2;
+	int hp;
 
 	f = UseActor( self->actors[ self->state ] );
 	DrawSprite( self->sprite, screen, self->position[ 0 ], self->position[ 1 ], f );
+
+	hp = ( float )self->health / self->maxHealth * 100;
+	sprintf( message, "%i%%", hp );
+	
+	c1.r = 255;
+	c1.g = 255;
+	c1.b = 255;
+	c2.r = 0;
+	c2.r = 0;
+	c2.r = 0;
+
+	temp = TTF_RenderText( font, message, c1, c2 );
+	txt = SDL_DisplayFormat( temp );
+	SDL_SetColorKey( txt, SDL_SRCCOLORKEY, SDL_MapRGB( txt->format, 255, 255, 255 ) );
+	SDL_FreeSurface( temp );
+
+	src.x = 0;
+	src.y = 0;
+	src.w = txt->w;
+	src.h = txt->h;
+
+	dest.x = screen->w - 40;
+	dest.y = 5;
+	dest.w = txt->w;
+	dest.h = txt->h;
+	SDL_BlitSurface( txt, &src, screen, &dest );
 }
 
 
 void BossTouch( Entity *self, Entity *other )
 {
+	self->health -= other->damage;
 }
 
 

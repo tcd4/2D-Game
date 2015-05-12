@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdio.h>
+#include "game.h"
 #include "ability.h"
 #include "projectile.h"
 
@@ -8,6 +9,7 @@ extern SDL_Surface *screen;
 extern Uint32 NOW;
 extern Uint32 cooldown;
 extern Uint32 lock;
+extern Uint32 levelTime;
 
 
 int LoadAbility( Ability *ability, char *filename, Entity *owner )
@@ -128,6 +130,54 @@ int LoadAbility( Ability *ability, char *filename, Entity *owner )
 		{
 			fscanf( file, "%i", &ability->lock );
 		}
+		else if( strncmp( buf, "delimiter:", 128 ) == 0 )
+		{
+			ability->delimiter = ( Delimiter * )malloc( sizeof( Delimiter ) );
+			memset( ability->delimiter, 0, sizeof( Delimiter ) );
+
+			fscanf( file, "%s", ability->delimiter->type );	
+		}
+		else if( strncmp( buf, "velocity+", 128 ) == 0 )
+		{
+			fscanf( file, "%f", &ability->delimiter->velocity );
+		} 
+		else if( strncmp( buf, "duration+", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &ability->delimiter->duration );
+		}
+		else if( strncmp( buf, "numProj+", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &ability->delimiter->numProj );
+		}
+		else if( strncmp( buf, "fuse+", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &ability->delimiter->fuse );
+		}
+		else if( strncmp( buf, "rate+", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &ability->fireRate );
+		}
+		else if( strncmp( buf, "cooldown+", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &ability->delimiter->cooldown );
+		}
+		else if( strncmp( buf, "angle+", 128 ) == 0 )
+		{
+			fscanf( file, "%f", &ability->delimiter->angle );
+		}
+		else if( strncmp( buf, "cone+", 128 ) == 0 )
+		{
+			fscanf( file, "%f", &ability->delimiter->cone );
+		} 
+		else if( strncmp( buf, "radius+", 128 ) == 0 )
+		{
+			fscanf( file, "%f", &ability->delimiter->radius );
+		}
+		else if( strncmp( buf, "uses+", 128 ) == 0 )
+		{
+			fscanf( file, "%i", &ability->delimiter->totalUses );
+			ability->delimiter->uses = 0;
+		}
 	}
 
 	fclose( file );
@@ -136,13 +186,6 @@ int LoadAbility( Ability *ability, char *filename, Entity *owner )
 	{
 		ability->position[ 0 ] = screen->w * ( ability->position[ 0 ] / 100.00 );
 		ability->position[ 1 ] = screen->h * ( ability->position[ 1 ] / 100.00 );
-	}
-
-	ability->velocities = ( vec2_t * )malloc( sizeof( vec2_t ) * ability->numProj );
-	if( !ability->velocities )
-	{
-		fprintf( stderr, "ERROR: LoadPoint: can't allocate memory for velocities\n" );
-		return 0;
 	}
 
 	if( strncmp( ability->pattern, "point", 128 ) == 0 )
@@ -162,6 +205,11 @@ int LoadAbility( Ability *ability, char *filename, Entity *owner )
 	ability->loaded = 1;
 	ability->inuse = 0;
 
+	if( ability->startTime )
+	{
+		ability->startTime += levelTime + LEVEL_DELAY;
+	}
+
 	fprintf( stdout, "LoadAbility: %s ability %s loaded\n", ability->pattern, ability->name );
 	return 1;
 }
@@ -174,6 +222,18 @@ int LoadPoint( Ability *ability )
 	float angle;
 	float curangle;
 	float decriment;
+
+	if( ability->loaded )
+	{
+		free( ability->velocities );
+	}
+
+	ability->velocities = ( vec2_t * )malloc( sizeof( vec2_t ) * ability->numProj );
+	if( !ability->velocities )
+	{
+		fprintf( stderr, "ERROR: LoadPoint: can't allocate memory for velocities\n" );
+		return 0;
+	}
 
 	if( !ability->relative )
 	{
@@ -206,6 +266,20 @@ int LoadCircle( Ability *ability )
 	float angle;
 	float sine, cosine;
 	float increment;
+
+	if( ability->loaded )
+	{
+		free( ability->positions );
+		free( ability->base );
+		free( ability->velocities );
+	}
+
+	ability->velocities = ( vec2_t * )malloc( sizeof( vec2_t ) * ability->numProj );
+	if( !ability->velocities )
+	{
+		fprintf( stderr, "ERROR: LoadPoint: can't allocate memory for velocities\n" );
+		return 0;
+	}
 
 	ability->positions = ( vec2_t * )malloc( sizeof( vec2_t ) * ability->numProj );
 	if( !ability->positions )
@@ -256,6 +330,21 @@ int LoadCustom( Ability *ability, char *filename )
 	float angle;
 	float x, y;
 
+	if( ability->loaded )
+	{
+		free( ability->positions );
+		free( ability->base );
+		free( ability->velocities );
+		free( ability->angles );
+	}
+
+	ability->velocities = ( vec2_t * )malloc( sizeof( vec2_t ) * ability->numProj );
+	if( !ability->velocities )
+	{
+		fprintf( stderr, "ERROR: LoadPoint: can't allocate memory for velocities\n" );
+		return 0;
+	}
+
 	ability->positions = ( vec2_t * )malloc( sizeof( vec2_t ) * ability->numProj );
 	if( !ability->positions )
 	{
@@ -277,29 +366,32 @@ int LoadCustom( Ability *ability, char *filename )
 		return 0;
 	}
 
-	file = fopen( filename, "r" );
-
-	while( fscanf( file, "%s", buf ) != EOF )
+	if( !ability->loaded )
 	{
-		if( buf[ 0 ] == '#' )
-		{
-			fgets( buf, sizeof( buf ), file );
-		}
-		else if( strncmp( buf, "p:", 128 ) == 0 )
-		{
-			fscanf( file, "%f,%f", &x, &y );
-			ability->base[ i ][ 0 ] = x;
-			ability->base[ i ][ 1 ] = y;
-		}
-		else if( strncmp( buf, "a:", 128 ) == 0 )
-		{
-			fscanf( file, "%f", &angle );
-			ability->angles[ i ] = angle;
-			i++;
-		}
-	}
+		file = fopen( filename, "r" );
 
-	fclose( file );
+		while( fscanf( file, "%s", buf ) != EOF )
+		{
+			if( buf[ 0 ] == '#' )
+			{
+				fgets( buf, sizeof( buf ), file );
+			}
+			else if( strncmp( buf, "p:", 128 ) == 0 )
+			{
+				fscanf( file, "%f,%f", &x, &y );
+				ability->base[ i ][ 0 ] = x;
+				ability->base[ i ][ 1 ] = y;
+			}
+			else if( strncmp( buf, "a:", 128 ) == 0 )
+			{
+				fscanf( file, "%f", &angle );
+				ability->angles[ i ] = angle;
+				i++;
+			}
+		}
+
+		fclose( file );
+	}
 
 	for( i = 0; i < ability->numProj; i++ )
 	{
@@ -320,6 +412,8 @@ int LoadCustom( Ability *ability, char *filename )
 
 void FreeAbility( Ability *ability )
 {
+	int i;
+
 	ability->inuse = 0;
 	ability->loaded = 0;
 
@@ -328,16 +422,15 @@ void FreeAbility( Ability *ability )
 		FreeSprite( ability->proj );
 	}
 
-	if( ability->concurrent_ability )
+	for( i = 0; i < ability->concurrent_num; i++ )
 	{
 		FreeAbility( ability->concurrent_ability );
 	}
 	
-	/*
 	if( ability->delimiter )
 	{
 		free( ability->delimiter );
-	}*/
+	}
 }
 
 
@@ -396,6 +489,11 @@ void UseAbility( Ability *ability )
 	if( !ability->inuse || ability->nextFire > NOW )
 	{
 		return;
+	}
+
+	if( ability->delimiter )
+	{
+		CheckDelimiter( ability );
 	}
 
 	if( ability->relative )
@@ -559,5 +657,49 @@ void FireCustomAbility( Ability *ability, vec2_t firepos )
 		}
 
 		ability->currentFire = ability->numProj + 1;
+	}
+}
+
+
+void CheckDelimiter( Ability *ability )
+{
+	int h;
+
+	if( strncmp( ability->delimiter->type, "health", TYPE_NAME_LEN ) == 0 )
+	{
+		h = ability->owner->maxHealth / ( ability->delimiter->totalUses + 1 ) * ( ability->delimiter->totalUses - ability->delimiter->uses );
+		
+		if( ability->owner->health <= h )
+		{
+			AddDelimiter( ability );
+			ability->delimiter->uses++;
+		}
+	}
+}
+
+
+void AddDelimiter( Ability *ability )
+{
+	ability->numProj += ability->delimiter->numProj;
+	ability->velocity += ability->delimiter->velocity;
+	ability->duration += ability->delimiter->duration;
+	ability->fireRate += ability->delimiter->fireRate;
+	ability->fuse += ability->delimiter->fuse;
+	ability->cooldown += ability->delimiter->cooldown;
+	ability->cone += ability->delimiter->cone;
+	ability->radius += ability->delimiter->radius;
+	ability->angle += ability->delimiter->angle;
+
+	if( strncmp( ability->pattern, "point", 128 ) == 0 )
+	{
+		LoadPoint( ability );
+	}
+	else if( strncmp( ability->pattern, "circle", 128 ) == 0 )
+	{
+		LoadCircle( ability );
+	}
+	else if( strncmp( ability->pattern, "custom", 128 ) == 0 )
+	{
+		LoadCustom( ability, NULL );
 	}
 }

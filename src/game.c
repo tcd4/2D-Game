@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include "game.h"
 #include "graphics.h"
 #include "sprites.h"
 #include "mouse.h"
@@ -8,13 +9,26 @@
 #include "player.h"
 #include "boss.h"
 
+
 extern SDL_Surface *screen;
 extern SDL_Surface *buffer; /*pointer to the draw buffer*/
 extern SDL_Rect Camera;
+extern Uint32 NOW;
+extern TTF_Font *font;
 Uint8 *keys;
+
+
+static Level	*__level = NULL;
+static Entity	*__player = NULL;
+static Entity	*__boss = NULL;
+int				levelTime = 0;
+int				paused = 0;
+int				gameOver = 0;
+
 
 void Init_All();
 void Draw();
+
 
 /*this program must be run from the directory directly below images and src, not from within src*/
 /*notice the default arguments for main.  SDL expects main to look like that, so don't change it*/
@@ -22,18 +36,10 @@ int main( int argc, char *argv[] )
 {
 	int done;
 	int keyn;
-	Level *level;
-	Entity *player;
-	Entity *boss;
 
 	Init_All();
 
-	level = LoadLevel( "def/Levels/Flame_Hell.txt" );
-	player = InitPlayer( "def/Characters/Marisa/Marisa.txt" );
-	player->visible = 1;
-
-	boss = InitBoss( "def/Bosses/Flame_Empress/Flame_Empress.txt" );
-	boss->visible = 1;
+	GameStart( "def/Characters/Marisa/Marisa.txt", "def/Bosses/Flame_Empress/Flame_Empress.txt", "def/Levels/Flame_Hell.txt" );
 
 	done = 0;
 	do
@@ -42,10 +48,15 @@ int main( int argc, char *argv[] )
 
 		keys = SDL_GetKeyState( &keyn );
 
+		GameThink();
+
 		Draw();
 
-		MoveEnts();
-		UpdateEnts();
+		if( !paused )
+		{
+			MoveEnts();
+			UpdateEnts();
+		}
 
 		NextFrame();
 		SDL_PumpEvents();
@@ -74,6 +85,7 @@ void CleanUpAll()
 	ClearSoundList();
 	CloseLevelSystem();
 	CloseSprites();
+	TTF_CloseFont( font );
 	
 	fflush( stdout );
 }
@@ -88,4 +100,44 @@ void Init_All()
 	InitEntitySystem();
 
 	atexit( CleanUpAll );
+}
+
+
+void GameStart( char *player, char *boss, char *level )
+{
+	GameClear();
+
+	paused = 1;
+	levelTime = NOW;
+
+	__level = LoadLevel( level );
+
+	__player = InitPlayer( player );
+	__player->visible = 1;
+
+	__boss = InitBoss( boss );
+	__boss->visible = 1;
+}
+
+
+void GameClear()
+{
+	FreeEntList();
+	__level = NULL;
+	__player = NULL;
+	__boss = NULL;
+}
+
+
+void GameThink()
+{
+	if( gameOver )
+	{
+		return;
+	}
+
+	if( NOW > levelTime + LEVEL_DELAY )
+	{
+		paused = 0;
+	}
 }

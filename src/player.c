@@ -147,6 +147,7 @@ Entity *InitPlayer( char *filename )
 	self->Touch = PlayerTouch;
 	self->Die = PlayerDie;
 	self->Free = PlayerFree;
+	self->Move = PlayerMove;
 
 	self->owner = NULL;
 	self->self = self;
@@ -155,6 +156,10 @@ Entity *InitPlayer( char *filename )
 	self->position[ 1 ] = screen->h - self->h;
 	self->origin[ 0 ] = self->position[ 0 ] + (self->w / 2 );
 	self->origin[ 1 ] = self->position[ 1 ] + (self->h / 2 );
+	self->bbox[ 0 ] = self->position[ 0 ];
+	self->bbox[ 1 ] = self->position[ 1 ];
+	self->bbox[ 2 ] = self->w;
+	self->bbox[ 3 ] = self->h;
 
 	self->trapped = 1;
 	self->canCollide = 0;
@@ -306,4 +311,11 @@ void ClearFireModeList()
 			FreeFireMode( &__modeList[ i ] );
 		}
 	}
+}
+
+
+void PlayerMove( Entity *self )
+{
+	self->bbox[ 0 ] = self->position[ 0 ];
+	self->bbox[ 1 ] = self->position[ 1 ];
 }
